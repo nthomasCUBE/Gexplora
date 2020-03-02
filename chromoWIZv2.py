@@ -1,9 +1,12 @@
 from tkinter import *
+import numpy as np
 
 canvas_width = 600
 canvas_height = 600
 
 master = Tk()
+
+BINS=200
 
 def calc_distribution():
     genomes={}
@@ -13,7 +16,7 @@ def calc_distribution():
     for line in fh.readlines():
         line=line.strip()
         vals=line.split("\t")
-        if(len(vals)>0):
+        if(len(vals)>0 and vals[2]=="mRNA"):
             genomes[vals[0]]=1
             c_v=max(int(vals[3]),int(vals[4]))
             if(gg.get(vals[0])==None):
@@ -27,7 +30,7 @@ gg=calc_distribution()
 c_max=0
 for gg_ in gg:
     c_max=max(c_max,max(gg[gg_]))
-c_step=int(c_max/200)
+c_step=int(c_max/BINS)
 
 w = Canvas(master, 
            width=canvas_width, 
@@ -47,25 +50,23 @@ gg_k=gg.keys()
 y_i=0
 for y in gg_k:
     w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
-    for x in range(0,200):
-        print("\t%s\t%i" % (y,x))
+    print(y)
+    for x in range(0,BINS):
         s1=c_step*x
         s2=c_step*(x+1)
+        all_e=gg[y].keys()
 
-        if(s2>max(all_e) and max(all_e)>1000000):
-            cnt=0
-            all_e=gg[y].keys()
-            all_E={}
-            for z in range(s1,s2):
-                all_E[z]=1
-            all_E_arr=all_E.keys()
-            all_E_arr=list(set(all_E_arr) & set(all_e))
-            cnt=len(all_E_arr)
-
+        if(s2<max(all_e) and max(all_e)>10000000):
+            xarr=list(all_e)
+            xarr=np.array(xarr)
+            xarr=xarr[xarr>=s1]
+            xarr=xarr[xarr<=s2]
+            cnt=len(xarr)
+            
             cur_col="white"
-            if(cnt>100):
+            if(cnt>50):
                 cur_col="red"
-            elif(cnt>50):
+            elif(cnt>30):
                 cur_col="orange"
             elif(cnt>20):
                 cur_col="green"
