@@ -2,7 +2,7 @@
 
 ongoing...
 
-plotting the gene distribution along the Brachpyodium genome.
+plotting the gene distribution along the Brachypodium genome.
 
 ![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2d.png)
 
