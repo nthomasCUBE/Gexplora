@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter.filedialog import askopenfilename
+
 import numpy as np
 
 canvas_width = 600
@@ -7,6 +9,11 @@ canvas_height = 600
 master = Tk()
 
 BINS=200
+
+MAP={}
+
+def search_genes():
+    pass
 
 def calc_distribution(c_type):
     print("INFO\tcalc_distribution\tstart\t%s" % c_type)
@@ -20,9 +27,11 @@ def calc_distribution(c_type):
         if(len(vals)>0 and vals[2]==c_type):
             genomes[vals[0]]=1
             c_v=max(int(vals[3]),int(vals[4]))
+            c_id=vals[8].split("ID=")[1].split(";")[0]
             if(gg.get(vals[0])==None):
                 gg[vals[0]]={}
             gg[vals[0]][c_v]=1
+            MAP[c_id]=[vals[0],c_v]
             if(c_v>c_max):
                 c_max=c_v
     print("INFO\tcalc_distribution\tended\t%s" % c_type)
@@ -30,6 +39,21 @@ def calc_distribution(c_type):
 
 def OptionMenu_SelectionEvent(event):
     gg=calc_distribution(tkvar.get())
+    do_calc(gg)
+
+def OptionMenu_SelectionEvent2():
+    filename = askopenfilename()
+    fh=open(filename)
+    gg={}
+    for line in fh.readlines():
+        line=line.strip()
+        vals=line.split("\t")
+        if(len(vals)>0):
+            if(MAP.get(vals[0])!=None):
+                if(gg.get(MAP[vals[0]][0])==None):
+                    gg[MAP[vals[0]][0]]={}
+                gg[MAP[vals[0]][0]][MAP[vals[0]][1]]=1
+                print("JA")
     do_calc(gg)
 
 gg=calc_distribution("mRNA")
@@ -47,6 +71,9 @@ choices = { 'mRNA','exon','one_item'}
 tkvar.set('mRNA')
 popupMenu = OptionMenu(master, tkvar, *choices, command=OptionMenu_SelectionEvent)
 popupMenu.pack()
+
+popupMenu2=Button(master,text="Find genes", command=OptionMenu_SelectionEvent2);
+popupMenu2.pack()
 
 w.pack()
 
