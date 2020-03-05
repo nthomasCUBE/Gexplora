@@ -15,6 +15,8 @@ MAP={}
 def search_genes():
     pass
 
+ALL_CHRS={}
+
 def calc_distribution(c_type):
     print("INFO\tcalc_distribution\tstart\t%s" % c_type)
     genomes={}
@@ -24,12 +26,13 @@ def calc_distribution(c_type):
     for line in fh.readlines():
         line=line.strip()
         vals=line.split("\t")
+        if(gg.get(vals[0])==None):
+            gg[vals[0]]={}
+        ALL_CHRS[vals[0]]=1
         if(len(vals)>0 and vals[2]==c_type):
             genomes[vals[0]]=1
             c_v=max(int(vals[3]),int(vals[4]))
             c_id=vals[8].split("ID=")[1].split(";")[0]
-            if(gg.get(vals[0])==None):
-                gg[vals[0]]={}
             gg[vals[0]][c_v]=1
             MAP[c_id]=[vals[0],c_v]
             if(c_v>c_max):
@@ -72,7 +75,7 @@ tkvar.set('mRNA')
 popupMenu = OptionMenu(master, tkvar, *choices, command=OptionMenu_SelectionEvent)
 popupMenu.pack()
 
-popupMenu2=Button(master,text="Find genes", command=OptionMenu_SelectionEvent2);
+popupMenu2=Button(master,text="Find genes (from a text-file)", command=OptionMenu_SelectionEvent2);
 popupMenu2.pack()
 
 w.pack()
@@ -82,6 +85,14 @@ def do_calc(gg):
     chrs=[100,80,60,40,30]
 
     gg_k=gg.keys()
+
+    # reset of the chromosome view
+    y_i=0
+    for y in ALL_CHRS:
+        w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
+        y_i=y_i+1
+        
+    # drawing the headmap on top
     y_i=0
     for y in gg_k:
         w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
@@ -90,9 +101,7 @@ def do_calc(gg):
             s1=c_step*x
             s2=c_step*(x+1)
             all_e=gg[y].keys()
-
-            if(s2<max(all_e) and max(all_e)>15000000):
-
+            if(len(all_e)>0 and s2<max(all_e) and max(all_e)>15000000):
                 if(x==0):
                     w.create_text(50,100*y_i+40,text=y)
                     w.create_text(400,100*y_i+85,text=str(round(max(gg[y].keys())/1000000,2))+" Mbp")
@@ -101,6 +110,8 @@ def do_calc(gg):
                 xarr=xarr[xarr>=s1]
                 xarr=xarr[xarr<=s2]
                 cnt=len(xarr)
+
+                print(cnt)
                 
                 cur_col="white"
                 if(cnt>50):
