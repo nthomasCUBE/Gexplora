@@ -28,8 +28,12 @@ def calc_distribution(c_type):
         vals=line.split("\t")
         if(gg.get(vals[0])==None):
             gg[vals[0]]={}
-        ALL_CHRS[vals[0]]=1
+        if(ALL_CHRS.get(vals[0])==None):
+            ALL_CHRS[vals[0]]={}
+        ALL_CHRS[vals[0]][int(vals[3])]=1
         if(len(vals)>0 and vals[2]==c_type):
+            if(vals[2]=="one_item"):
+                print(vals)
             genomes[vals[0]]=1
             c_v=max(int(vals[3]),int(vals[4]))
             c_id=vals[8].split("ID=")[1].split(";")[0]
@@ -56,14 +60,15 @@ def OptionMenu_SelectionEvent2():
                 if(gg.get(MAP[vals[0]][0])==None):
                     gg[MAP[vals[0]][0]]={}
                 gg[MAP[vals[0]][0]][MAP[vals[0]][1]]=1
-                print("JA")
     do_calc(gg)
 
-gg=calc_distribution("mRNA")
+gg=calc_distribution("one_item")
 c_max=0
-for gg_ in gg:
-    c_max=max(c_max,max(gg[gg_]))
+for gg_ in ALL_CHRS:
+    c_max=max(c_max,max(ALL_CHRS[gg_]))
 c_step=int(c_max/BINS)
+
+print(c_step)
 
 w = Canvas(master, 
            width=canvas_width, 
@@ -71,12 +76,18 @@ w = Canvas(master,
 
 tkvar = StringVar(master)
 choices = { 'mRNA','exon','one_item'}
-tkvar.set('mRNA')
+tkvar.set('one_item')
 popupMenu = OptionMenu(master, tkvar, *choices, command=OptionMenu_SelectionEvent)
 popupMenu.pack()
 
 popupMenu2=Button(master,text="Find genes (from a text-file)", command=OptionMenu_SelectionEvent2);
 popupMenu2.pack()
+
+tkvar = StringVar(master)
+choices = { 100,90,80,70,60,50,40,30,20,10}
+tkvar.set(100)
+popupMenu3 = OptionMenu(master, tkvar, *choices)
+popupMenu3.pack()
 
 w.pack()
 
@@ -101,20 +112,18 @@ def do_calc(gg):
             s1=c_step*x
             s2=c_step*(x+1)
             all_e=gg[y].keys()
-            if(len(all_e)>0 and s2<max(all_e) and max(all_e)>15000000):
+            if(len(all_e)>0 and s1<max(all_e) and max(ALL_CHRS[y])>15000000):
                 if(x==0):
                     w.create_text(50,100*y_i+40,text=y)
-                    w.create_text(400,100*y_i+85,text=str(round(max(gg[y].keys())/1000000,2))+" Mbp")
+                    w.create_text(400,100*y_i+85,text=str(round(max(ALL_CHRS[y].keys())/1000000,2))+" Mbp")
                 xarr=list(all_e)
                 xarr=np.array(xarr)
                 xarr=xarr[xarr>=s1]
                 xarr=xarr[xarr<=s2]
                 cnt=len(xarr)
 
-                print(cnt)
-                
                 cur_col="white"
-                if(cnt>50):
+                if(cnt>80):
                     cur_col="red"
                 elif(cnt>30):
                     cur_col="orange"
