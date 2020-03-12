@@ -1,4 +1,4 @@
-# chromoWIZv2
+# chromoWIZv2 (under development)
 
 plotting the gene distribution along the Brachypodium distachyon genome.
 
