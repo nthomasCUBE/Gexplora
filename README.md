@@ -6,6 +6,6 @@ It allows to use a GTF file as input and then to display mRNA, exon (in the seco
 column) and to adapt the maximum threshold per BIN (using 200 non-overlapping bins respective
 to largest chromosome).
 
-![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2e.png)
+![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2f.png)
 
 chromoWIZ as a graphical user interface
