@@ -1,5 +1,5 @@
 #
-#   2002/03/10
+#   2002/03/13
 #
 
 from tkinter import *
@@ -9,10 +9,32 @@ import numpy as np
 
 import requests, sys
 
+def gene_info_ws():
+    
+    print("INFO\tgene_info_ws")
+    server = "https://rest.ensembl.org"
+    ext = "/sequence/id/%s?type=cds" % display.get("1.0","end-1c")
+    #BRADI_5g16797v3
+     
+    r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
+     
+    if not r.ok:
+      r.raise_for_status()
+      sys.exit()
+    else:
+        display2.insert(END,r.text)
+     
+    print(r.text)     
+
+
 canvas_width = 600
 canvas_height = 600
 
 master = Tk()
+newwin = Toplevel(master, height=10, width=25)
+display = Text(newwin, height=10, width=50)
+display2 = Text(newwin, height=10, width=50)
+button = Button(newwin, text="Get Sequence",command=gene_info_ws)    
 
 BINS=200
 
@@ -59,7 +81,7 @@ def OptionMenu_SelectionEvent(event):
 #
 #   Genes of interest that should be shown
 #
-def OptionMenu_SelectionEvent2():
+def OptionMenu_SelectionEvent2():    
     filename = askopenfilename()
     fh=open(filename)
     gg={}
@@ -89,17 +111,12 @@ def OptionMenu_SelectionEvent3():
 
 
 def gene_info():
+
     print("INFO\tgene_info")
-    server = "https://rest.ensembl.org"
-    ext = "/sequence/id/BRADI_5g16797v3?type=cds"
-     
-    r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
-     
-    if not r.ok:
-      r.raise_for_status()
-      sys.exit()
-     
-    print(r.text)     
+    display.pack() 
+    display2.pack() 
+    button.pack()
+    
 
 gg=calc_distribution("one_item")
 c_max=0
@@ -195,5 +212,5 @@ def do_calc(gg):
 
 do_calc(gg)
 
-mainloop()
+master.mainloop()
 
