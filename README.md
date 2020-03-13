@@ -9,3 +9,27 @@ to largest chromosome).
 ![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2g.png)
 
 chromoWIZ as a graphical user interface
+
+## Ensembl Plant
+
+Ensembl provide a bunch of different endpoints to obtain data. We use some of these endpoints 
+in chromoWIZpy.
+![Ensembl REST API Endpoints](https://rest.ensembl.org/)
+
+## Additional required Python Packages
+
+In chromoWIZpy, we use tkinter for the graphical user interface, while
+we use numpy to be faster in calculating overlaps between elements of two arrays while
+requests is used to obtain data from endpoints of Ensembl.
+
+- numpy
+- requests
+- tkinter
+
+For installation under Windows, you can use the "pip.exe" that can be normally
+found in the subdirectory "scripts" within the python installation.
+You can install Python packages using ``pip.exe install requests''-
+
+
+
+
