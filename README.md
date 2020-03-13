@@ -13,8 +13,7 @@ chromoWIZ as a graphical user interface
 ## Ensembl Plant
 
 Ensembl provide a bunch of different endpoints to obtain data. We use some of these endpoints 
-in chromoWIZpy.
-![Ensembl REST API Endpoints](https://rest.ensembl.org/)
+in chromoWIZpy (https://rest.ensembl.org/).
 
 ## Additional required Python Packages
 
