@@ -1,5 +1,5 @@
 #
-#   2002/03/13
+#   2002/03/14: working on the relative genes tagged per total genes in Bin
 #
 
 from tkinter import *
@@ -24,7 +24,6 @@ def gene_family_ws():
         my_ids_u[my_id]=1
     for my_id in my_ids_u:
         ext = "/family/member/id/%s?content-type=application/json" % my_id
-        print(server+ext)
         try: 
             r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
              
@@ -36,7 +35,15 @@ def gene_family_ws():
                 obj = json.loads(r.text)
                 mem=obj["1"]["members"]
                 for mem_ in mem:
-                    display22.insert(END,mem_["protein_stable_id"])
+                    psi="-"
+                    gen="-"
+                    if(mem_.get("protein_stable_id")!=None):
+                        psi=mem_["protein_stable_id"]
+                    if(mem_.get("genome")!=None):
+                        gen=mem_["genome"]
+                    if(mem_.get("description")!=None):
+                        desc=mem_["description"]
+                    display22.insert(END,psi+"\t"+gen+"\t"+desc)
                     display22.insert(END,"\n")
         except:
             display22.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
@@ -103,10 +110,10 @@ def calc_distribution(c_type):
             gg[vals[0]]={}
         if(ALL_CHRS.get(vals[0])==None):
             ALL_CHRS[vals[0]]={}
-        ALL_CHRS[vals[0]][int(vals[3])]=1
+        ALL_CHRS[vals[0]][min(int(vals[3]),int(vals[4]))]=1
         if(len(vals)>0 and vals[2]==c_type):
             genomes[vals[0]]=1
-            c_v=max(int(vals[3]),int(vals[4]))
+            c_v=min(int(vals[3]),int(vals[4]))
             c_id=vals[8].split("ID=")[1].split(";")[0]
             gg[vals[0]][c_v]=1
             MAP[c_id]=[vals[0],c_v]
@@ -125,31 +132,18 @@ def OptionMenu_SelectionEvent(event):
 def OptionMenu_SelectionEvent2():    
     filename = askopenfilename()
     fh=open(filename)
-    gg={}
+    qq={}
+    gg=calc_distribution(tkvar.get())
     for line in fh.readlines():
         line=line.strip()
         vals=line.split("\t")
         if(len(vals)>0):
             if(MAP.get(vals[0])!=None):
-                if(gg.get(MAP[vals[0]][0])==None):
-                    gg[MAP[vals[0]][0]]={}
-                gg[MAP[vals[0]][0]][MAP[vals[0]][1]]=1
-    do_calc(gg)
-
-
-#
-#   Determines whether a gene has an ortholog or not
-#
-def OptionMenu_SelectionEvent3():
-    filename = askopenfilename()
-    fh=open(filename)
-    SYN={}
-    for line in fh.readlines():
-        line=line.strip()
-        vals=line.split("\t")
-        if(len(vals)>0):
-            SYN[vals[0]]=vals[1]
-
+                if(qq.get(MAP[vals[0]][0])==None):
+                    qq[MAP[vals[0]][0]]={}
+                qq[MAP[vals[0]][0]][MAP[vals[0]][1]]=1
+    print(qq)
+    do_calc(gg, qq)
 
 def gene_info():
 
@@ -176,23 +170,22 @@ w = Canvas(master,
            width=canvas_width, 
            height=canvas_height)
 
+
+
 tkvar = StringVar(master)
 choices = { 'mRNA','exon','one_item'}
 tkvar.set('mRNA')
+l1=Label(master,text="Element type:",width=30)
 popupMenu = OptionMenu(master, tkvar, *choices, command=OptionMenu_SelectionEvent)
-popupMenu.pack()
 
-popupMenu2=Button(master,text="Find genes (from a text-file)", command=OptionMenu_SelectionEvent2);
-popupMenu2.pack()
-
-popupMenu3=Button(master,text="orthology (from a text-file)", command=OptionMenu_SelectionEvent3);
-popupMenu3.pack()
+l2=Label(master,text="Candidate genes:",width=30)
+popupMenu2=Button(master,text="Find genes (from a text-file)", command=OptionMenu_SelectionEvent2)
 
 tkvar3 = StringVar(master)
 choices = { 100,90,80,70,60,50,40,30,20,10}
 tkvar3.set(100)
-popupMenu3 = OptionMenu(master, tkvar3, *choices, command=OptionMenu_SelectionEvent)
-popupMenu3.pack()
+l4=Label(master,text="Max threshold:",width=30)
+popupMenu4 = OptionMenu(master, tkvar3, *choices, command=OptionMenu_SelectionEvent)
 
 menubar = Menu(master)
 filemenu = Menu(master, tearoff=0)
@@ -210,9 +203,15 @@ menubar.add_cascade(label="Ensembl", menu=filemenu2)
 
 master.config(menu=menubar)
 
-w.pack()
+l1.grid(row=0,column=0,padx=15)
+l2.grid(row=1,column=0,padx=15)
+l4.grid(row=3,column=0,padx=15)
+popupMenu.grid(row=0,column=1,padx=15)
+popupMenu2.grid(row=1,column=1,padx=15)
+popupMenu4.grid(row=3,column=1,padx=15)
+w.grid(row=4,column=0,columnspan=2)
 
-def do_calc(gg):
+def do_calc(gg, qq=None):
     print("INFO\tdo_calc\tstart")
     chrs=[100,80,60,40,30]
     gg_k=gg.keys()
@@ -236,11 +235,23 @@ def do_calc(gg):
                 if(x==0):
                     w.create_text(50,100*y_i+40,text=y)
                     w.create_text(400,100*y_i+85,text=str(round(max(ALL_CHRS[y].keys())/1000000,2))+" Mbp")
+
                 xarr=list(all_e)
                 xarr=np.array(xarr)
                 xarr=xarr[xarr>=s1]
                 xarr=xarr[xarr<=s2]
                 cnt=len(xarr)
+
+                cnt2=0
+                if(qq!=None):
+                    if(qq.get(y)!=None):
+                        cnt2=np.array(list(qq[y].keys()))
+                        if(cnt>0):
+                            cnt2_N=len(cnt2[np.isin(cnt2,xarr)])
+                            cnt2=round(100.0*cnt2_N/len(xarr))
+                    cnt=cnt2_N
+                else:
+                    cnt2=0
 
                 cur_col="white"
                 if(cnt>0.8*float(tkvar3.get())):
@@ -254,7 +265,7 @@ def do_calc(gg):
                 elif(cnt>0*float(tkvar3.get())):
                     cur_col="blue"
                 elif(cnt==0):
-                    cur_col="black"
+                    cur_col="#e0e0d1"
                 w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
         y_i=y_i+1    
     print("INFO\tdo_calc\tended")
