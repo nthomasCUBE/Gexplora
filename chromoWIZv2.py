@@ -4,37 +4,78 @@
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
-
 import numpy as np
-
 import requests, sys
+import json
 
+#
+#   Example data
+#
+#   Example gene: BRADI_5g16797v3
+#   Example gene: ENSG00000157764
+ 
+def gene_family_ws():
+    
+    print("INFO\tgene_info_ws")
+    server = "https://rest.ensembl.org"
+    my_ids=display21.get("1.0","end-1c").split()
+    my_ids_u={}
+    for my_id in my_ids:
+        my_ids_u[my_id]=1
+    for my_id in my_ids_u:
+        ext = "/family/member/id/%s?content-type=application/json" % my_id
+        print(server+ext)
+        try: 
+            r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
+             
+            if not r.ok:
+              r.raise_for_status()
+              display22.insert(END,"SEQUENCE WAS NOT FOUND")
+              sys.exit()
+            else:
+                obj = json.loads(r.text)
+                mem=obj["1"]["members"]
+                for mem_ in mem:
+                    display22.insert(END,mem_["protein_stable_id"])
+                    display22.insert(END,"\n")
+        except:
+            display22.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
+    
 def gene_info_ws():
     
     print("INFO\tgene_info_ws")
     server = "https://rest.ensembl.org"
-    ext = "/sequence/id/%s?type=cds" % display.get("1.0","end-1c")
-    #BRADI_5g16797v3
-     
-    r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
-     
-    if not r.ok:
-      r.raise_for_status()
-      sys.exit()
-    else:
-        display2.insert(END,r.text)
-     
-    print(r.text)     
-
+    my_ids=display.get("1.0","end-1c").split()
+    my_ids_u={}
+    for my_id in my_ids:
+        my_ids_u[my_id]=1
+    for my_id in my_ids_u:
+        ext = "/sequence/id/%s?type=cds" % my_id
+        try: 
+            r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
+            if not r.ok:
+              r.raise_for_status()
+              display2.insert(END,"SEQUENCE WAS NOT FOUND")
+              sys.exit()
+            else:
+                display2.insert(END,r.text)
+        except:
+            display2.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
 
 canvas_width = 600
 canvas_height = 600
 
 master = Tk()
+
 newwin = Toplevel(master, height=10, width=25)
 display = Text(newwin, height=10, width=50)
 display2 = Text(newwin, height=10, width=50)
 button = Button(newwin, text="Get Sequence",command=gene_info_ws)    
+
+newwin2 = Toplevel(master, height=10, width=25)
+display21 = Text(newwin2, height=10, width=50)
+display22 = Text(newwin2, height=10, width=50)
+button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
 
 BINS=200
 
@@ -116,6 +157,13 @@ def gene_info():
     display.pack() 
     display2.pack() 
     button.pack()
+
+def gene_family():
+
+    print("INFO\tgene_family")
+    display21.pack() 
+    display22.pack() 
+    button2.pack()
     
 
 gg=calc_distribution("one_item")
@@ -130,7 +178,7 @@ w = Canvas(master,
 
 tkvar = StringVar(master)
 choices = { 'mRNA','exon','one_item'}
-tkvar.set('one_item')
+tkvar.set('mRNA')
 popupMenu = OptionMenu(master, tkvar, *choices, command=OptionMenu_SelectionEvent)
 popupMenu.pack()
 
@@ -156,6 +204,7 @@ menubar.add_cascade(label="File", menu=filemenu)
 
 filemenu2 = Menu(master, tearoff=0)
 filemenu2.add_command(label="Gene Information", command=gene_info)
+filemenu2.add_command(label="Gene Family",      command=gene_family)
 filemenu2.add_separator()
 menubar.add_cascade(label="Ensembl", menu=filemenu2)
 
