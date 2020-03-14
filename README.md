@@ -8,7 +8,7 @@ to largest chromosome).
 
 Visualizing all genes from an input GTF file and Ensembl Webservice calls to retrieve sequence for a
 gene as well as gene tree for a particular human gene.
-![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2h.png)
+![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2h_3.png)
 
 Or searching for candidate genes by uploading the candidate genes
 
