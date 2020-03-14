@@ -6,7 +6,13 @@ It allows to use a GTF file as input and then to display mRNA, exon (in the seco
 column) and to adapt the maximum threshold per BIN (using 200 non-overlapping bins respective
 to largest chromosome).
 
+Visualizing all genes from an input GTF file and Ensembl Webservice calls to retrieve sequence for a
+gene as well as gene tree for a particular human gene.
 ![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2h.png)
+
+Or searching for candidate genes by uploading the candidate genes
+
+![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2h_2.png)
 
 chromoWIZ as a graphical user interface
 
