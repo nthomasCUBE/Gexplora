@@ -9,11 +9,12 @@ import numpy as np
 import requests, sys
 import json
 
-#
-#   Example data
+#   -------------------------------------------------------------------------------
+#   EXAMPLE DATA
 #
 #   Example gene: BRADI_5g16797v3
 #   Example gene: ENSG00000157764
+#   -------------------------------------------------------------------------------
  
 def gene_family_ws():
     
@@ -77,14 +78,16 @@ master = Tk("chromoWIZpy")
 master.configure(background='lightgreen')
 
 newwin = Toplevel(master, height=10, width=25)
-display = Text(newwin, height=10, width=50, bg="cyan")
-display2 = Text(newwin, height=10, width=50, bg="yellow")
-button = Button(newwin, text="Get Sequence",command=gene_info_ws)    
+display = Text(newwin, height=10, width=50, bg="lightyellow")
+display2 = Text(newwin, height=10, width=50, bg="lightyellow")
+button = Button(newwin, text="Get Sequence",command=gene_info_ws)
+newwin.destroy()
 
 newwin2 = Toplevel(master, height=10, width=25)
-display21 = Text(newwin2, height=10, width=50, bg="blue")
-display22 = Text(newwin2, height=10, width=50, bg="yellow")
+display21 = Text(newwin2, height=10, width=50, bg="lightyellow")
+display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
 button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
+newwin2.destroy()
 
 BINS=200
 
@@ -153,6 +156,12 @@ def OptionMenu_SelectionEvent2():
 def gene_info():
 
     print("INFO\tgene_info")
+
+    newwin = Toplevel(master, height=10, width=25)
+    display = Text(newwin, height=10, width=50, bg="lightyellow")
+    display2 = Text(newwin, height=10, width=50, bg="lightyellow")
+    button = Button(newwin, text="Get Sequence",command=gene_info_ws)
+
     display.pack() 
     display2.pack() 
     button.pack()
@@ -160,6 +169,12 @@ def gene_info():
 def gene_family():
 
     print("INFO\tgene_family")
+
+    newwin2 = Toplevel(master, height=10, width=25)
+    display21 = Text(newwin2, height=10, width=50, bg="lightyellow")
+    display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
+    button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
+
     display21.pack() 
     display22.pack() 
     button2.pack()
@@ -167,12 +182,17 @@ def gene_family():
 def add_chr():
     master.CHR_START=master.CHR_START+5
     master.CHR_END=master.CHR_END+5
+    print("INFO\tadd_chr\t%i\t%i" % (master.CHR_START,master.CHR_END))
     gg=calc_distribution(tkvar.get())
     do_calc(gg)
 
 def minus_chr():
     master.CHR_START=max(0,master.CHR_START-5)
     master.CHR_END=max(0,master.CHR_END-5)
+    if(master.CHR_END==0 and master.CHR_START==0):
+        master.CHR_START=0
+        master.CHR_END=5
+    print("INFO\tminus_chr\t%i\t%i" % (master.CHR_START,master.CHR_END))
     gg=calc_distribution(tkvar.get())
     do_calc(gg)
     
