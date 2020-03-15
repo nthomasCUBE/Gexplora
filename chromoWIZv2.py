@@ -20,7 +20,7 @@ def gene_family_ws():
     
     print("INFO\tgene_info_ws")
     server = "https://rest.ensembl.org"
-    my_ids=display21.get("1.0","end-1c").split()
+    my_ids=master.display21.get("1.0","end-1c").split()
     my_ids_u={}
     for my_id in my_ids:
         my_ids_u[my_id]=1
@@ -31,7 +31,7 @@ def gene_family_ws():
              
             if not r.ok:
               r.raise_for_status()
-              display22.insert(END,"SEQUENCE WAS NOT FOUND")
+              master.display22.insert(END,"SEQUENCE WAS NOT FOUND")
               sys.exit()
             else:
                 obj = json.loads(r.text)
@@ -45,16 +45,16 @@ def gene_family_ws():
                         gen=mem_["genome"]
                     if(mem_.get("description")!=None):
                         desc=mem_["description"]
-                    display22.insert(END,psi+"\t"+gen+"\t"+desc)
-                    display22.insert(END,"\n")
+                    master.display22.insert(END,psi+"\t"+gen+"\t"+desc)
+                    master.display22.insert(END,"\n")
         except:
-            display22.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
+            master.display22.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
     
 def gene_info_ws():
     
     print("INFO\tgene_info_ws")
     server = "https://rest.ensembl.org"
-    my_ids=display.get("1.0","end-1c").split()
+    my_ids=master.display.get("1.0","end-1c").split()
     my_ids_u={}
     for my_id in my_ids:
         my_ids_u[my_id]=1
@@ -64,12 +64,12 @@ def gene_info_ws():
             r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
             if not r.ok:
               r.raise_for_status()
-              display2.insert(END,"SEQUENCE WAS NOT FOUND")
+              master.display2.insert(END,"SEQUENCE WAS NOT FOUND")
               sys.exit()
             else:
-                display2.insert(END,r.text)
+                master.display2.insert(END,r.text)
         except:
-            display2.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
+            master.display2.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
 
 canvas_width = 600
 canvas_height = 600
@@ -78,14 +78,14 @@ master = Tk("chromoWIZpy")
 master.configure(background='lightgreen')
 
 newwin = Toplevel(master, height=10, width=25)
-display = Text(newwin, height=10, width=50, bg="lightyellow")
-display2 = Text(newwin, height=10, width=50, bg="lightyellow")
+master.display = Text(newwin, height=5, width=50, bg="lightyellow")
+master.display2 = Text(newwin, height=10, width=50, bg="lightyellow")
 button = Button(newwin, text="Get Sequence",command=gene_info_ws)
 newwin.destroy()
 
 newwin2 = Toplevel(master, height=10, width=25)
-display21 = Text(newwin2, height=10, width=50, bg="lightyellow")
-display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
+master.display21 = Text(newwin2, height=5, width=50, bg="lightyellow")
+master.display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
 button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
 newwin2.destroy()
 
@@ -100,7 +100,7 @@ master.CHR_END=5
 def search_genes():
     pass
 
-ALL_CHRS={}
+master.ALL_CHRS={}
 
 #
 #   Computes the distribution of gene conservation along the chromosome
@@ -110,28 +110,39 @@ def calc_distribution(c_type):
     genomes={}
     c_max=0
     gg={}
-    fh=open("brachypodium1.2_20100223_MIPSGFF.gff")
+
+    if(master.gtf_file==None):
+        return;
+    
+    fh=open(master.gtf_file)
     for line in fh.readlines():
         line=line.strip()
         vals=line.split("\t")
-        if(gg.get(vals[0])==None):
-            gg[vals[0]]={}
-        if(ALL_CHRS.get(vals[0])==None):
-            ALL_CHRS[vals[0]]={}
-        ALL_CHRS[vals[0]][min(int(vals[3]),int(vals[4]))]=1
-        if(len(vals)>0 and vals[2]==c_type):
-            genomes[vals[0]]=1
-            c_v=min(int(vals[3]),int(vals[4]))
-            c_id=vals[8].split("ID=")[1].split(";")[0]
-            gg[vals[0]][c_v]=1
-            MAP[c_id]=[vals[0],c_v]
-            if(c_v>c_max):
-                c_max=c_v
+        if(len(vals)==9):
+            if(gg.get(vals[0])==None):
+                gg[vals[0]]={}
+            if(master.ALL_CHRS.get(vals[0])==None):
+                master.ALL_CHRS[vals[0]]={}
+            master.ALL_CHRS[vals[0]][min(int(vals[3]),int(vals[4]))]=1
+            if(len(vals)>0 and vals[2]==c_type):
+                genomes[vals[0]]=1
+                c_v=min(int(vals[3]),int(vals[4]))
+                c_id=vals[8].split("ID=")[1].split(";")[0]
+                gg[vals[0]][c_v]=1
+                MAP[c_id]=[vals[0],c_v]
+                if(c_v>c_max):
+                    c_max=c_v
     print("INFO\tcalc_distribution\tended\t%s" % c_type)
+
+    c_max=-1
+    for gg_ in master.ALL_CHRS:
+        c_max=max(c_max,max(master.ALL_CHRS[gg_]))
+    master.c_step=int(c_max/BINS)
+
     return(gg)
 
 def OptionMenu_SelectionEvent(event):
-    gg=calc_distribution(tkvar.get())
+    gg=calc_distribution(master.tkvar.get())
     do_calc(gg)
 
 #
@@ -150,7 +161,6 @@ def OptionMenu_SelectionEvent2():
                 if(qq.get(MAP[vals[0]][0])==None):
                     qq[MAP[vals[0]][0]]={}
                 qq[MAP[vals[0]][0]][MAP[vals[0]][1]]=1
-    print(qq)
     do_calc(gg, qq)
 
 def gene_info():
@@ -158,12 +168,12 @@ def gene_info():
     print("INFO\tgene_info")
 
     newwin = Toplevel(master, height=10, width=25)
-    display = Text(newwin, height=10, width=50, bg="lightyellow")
-    display2 = Text(newwin, height=10, width=50, bg="lightyellow")
+    master.display = Text(newwin, height=5, width=50, bg="lightyellow")
+    master.display2 = Text(newwin, height=10, width=50, bg="lightyellow")
     button = Button(newwin, text="Get Sequence",command=gene_info_ws)
 
-    display.pack() 
-    display2.pack() 
+    master.display.pack() 
+    master.display2.pack() 
     button.pack()
 
 def gene_family():
@@ -171,12 +181,12 @@ def gene_family():
     print("INFO\tgene_family")
 
     newwin2 = Toplevel(master, height=10, width=25)
-    display21 = Text(newwin2, height=10, width=50, bg="lightyellow")
-    display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
+    master.display21 = Text(newwin2, height=5, width=50, bg="lightyellow")
+    master.display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
     button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
 
-    display21.pack() 
-    display22.pack() 
+    master.display21.pack() 
+    master.display22.pack() 
     button2.pack()
 
 def add_chr():
@@ -197,21 +207,21 @@ def minus_chr():
     do_calc(gg)
     
 
-gg=calc_distribution("one_item")
-c_max=0
-for gg_ in ALL_CHRS:
-    c_max=max(c_max,max(ALL_CHRS[gg_]))
-c_step=int(c_max/BINS)
+#gg=calc_distribution("one_item")
+#c_max=0
+#for gg_ in ALL_CHRS:
+#    c_max=max(c_max,max(ALL_CHRS[gg_]))
+#c_step=int(c_max/BINS)
 
 w = Canvas(master, 
            width=canvas_width, 
            height=canvas_height, bg='lightyellow')
 
-tkvar = StringVar(master)
-choices = { 'mRNA','exon','one_item'}
-tkvar.set('mRNA')
+master.tkvar = StringVar(master)
+choices = {'---'}
+master.tkvar.set('---')
 l1=Label(master,text="Element type:",width=30)
-popupMenu = OptionMenu(master, tkvar, *choices, command=OptionMenu_SelectionEvent)
+master.popupMenu = OptionMenu(master, master.tkvar, *choices, command=OptionMenu_SelectionEvent)
 
 l2=Label(master,text="Candidate genes:",width=30)
 popupMenu2=Button(master,text="Find genes (from a text-file)", command=OptionMenu_SelectionEvent2)
@@ -229,9 +239,25 @@ l4=Label(master,text="Max threshold:",width=30)
 popupMenu51 = Button(master,text="<<", command=minus_chr)
 popupMenu52 = Button(master,text=">>", command=add_chr)
 
+def get_gtf_file():
+    master.gtf_file = askopenfilename()
+
+    choices={}
+    fh=open(master.gtf_file)
+    for line in fh.readlines():
+        line=line.strip()
+        vals=line.split("\t")
+        if(len(vals)==9):
+            choices[vals[2]]=1
+    master.tkvar = StringVar(master)
+    master.tkvar.set('mRNA')
+    l1=Label(master,text="Element type:",width=30)
+    master.popupMenu = OptionMenu(master, master.tkvar, *choices, command=OptionMenu_SelectionEvent)
+    master.popupMenu.grid(row=0,column=1,padx=15)
+    
 menubar = Menu(master)
 filemenu = Menu(master, tearoff=0)
-filemenu.add_command(label="Open")
+filemenu.add_command(label="Open", command=get_gtf_file)
 filemenu.add_command(label="Save")
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=master.quit)
@@ -248,7 +274,7 @@ master.config(menu=menubar)
 l1.grid(row=0,column=0,padx=15)
 l2.grid(row=1,column=0,padx=15)
 l4.grid(row=3,column=0,padx=15)
-popupMenu.grid(row=0,column=1,padx=15)
+#master.popupMenu.grid(row=0,column=1,padx=15)
 popupMenu2.grid(row=1,column=1,padx=15)
 popupMenu4.grid(row=3,column=1,padx=15)
 popupMenu51.grid(row=4,column=1,padx=15)
@@ -260,9 +286,12 @@ def do_calc(gg, qq=None):
     chrs=[100,80,60,40,30]
     gg_k=gg.keys()
 
+    if(master.gtf_file==None):
+        return;
+
     # reset of the chromosome view
     y_i=0
-    for y in list(ALL_CHRS)[0:5]:
+    for y in list(master.ALL_CHRS)[0:5]:
         w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
         y_i=y_i+1
 
@@ -275,13 +304,13 @@ def do_calc(gg, qq=None):
         i=w.create_text(200,100*y_i+85,text="0")
         
         for x in range(0,BINS):
-            s1=c_step*x
-            s2=c_step*(x+1)
+            s1=master.c_step*x
+            s2=master.c_step*(x+1)
             all_e=gg[y].keys()
             if(len(all_e)>0 and s1<max(all_e)): # and max(ALL_CHRS[y])>15000000):
                 if(x==0):
                     w.create_text(50,100*y_i+40,text=y)
-                    w.create_text(400,100*y_i+85,text=str(round(max(ALL_CHRS[y].keys())/1000000,2))+" Mbp")
+                    w.create_text(400,100*y_i+85,text=str(round(max(master.ALL_CHRS[y].keys())/1000000,2))+" Mbp")
 
                 xarr=list(all_e)
                 xarr=np.array(xarr)
@@ -317,7 +346,7 @@ def do_calc(gg, qq=None):
         y_i=y_i+1    
     print("INFO\tdo_calc\tended")
 
-do_calc(gg)
+#do_calc(gg)
 
 master.mainloop()
 
