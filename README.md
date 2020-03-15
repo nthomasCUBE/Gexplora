@@ -14,6 +14,9 @@ Or searching for candidate genes by uploading the candidate genes
 
 ![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2i_2.png)
 
+The GTF can be taken from Ensembl and then any of the element types can be selected and visualized.
+![chromoWIZv2](https://github.com/nthomasCUBE/chromoWIZv2/blob/master/chromoWIZv2i_3.png)
+
 chromoWIZ as a graphical user interface
 
 ## Ensembl Plant
