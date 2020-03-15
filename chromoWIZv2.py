@@ -1,5 +1,6 @@
 #
-#   2002/03/14: working on the relative genes tagged per total genes in Bin
+#   2020/03/14: working on the relative genes tagged per total genes in Bin
+#   2020/03/15: moving through chromosomes when n_chromosomes>5
 #
 
 from tkinter import *
@@ -72,22 +73,26 @@ def gene_info_ws():
 canvas_width = 600
 canvas_height = 600
 
-master = Tk()
+master = Tk("chromoWIZpy")
+master.configure(background='lightgreen')
 
 newwin = Toplevel(master, height=10, width=25)
-display = Text(newwin, height=10, width=50)
-display2 = Text(newwin, height=10, width=50)
+display = Text(newwin, height=10, width=50, bg="cyan")
+display2 = Text(newwin, height=10, width=50, bg="yellow")
 button = Button(newwin, text="Get Sequence",command=gene_info_ws)    
 
 newwin2 = Toplevel(master, height=10, width=25)
-display21 = Text(newwin2, height=10, width=50)
-display22 = Text(newwin2, height=10, width=50)
+display21 = Text(newwin2, height=10, width=50, bg="blue")
+display22 = Text(newwin2, height=10, width=50, bg="yellow")
 button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
 
 BINS=200
 
 MAP={}
 SYN={}
+
+master.CHR_START=0
+master.CHR_END=5
 
 def search_genes():
     pass
@@ -158,6 +163,18 @@ def gene_family():
     display21.pack() 
     display22.pack() 
     button2.pack()
+
+def add_chr():
+    master.CHR_START=master.CHR_START+5
+    master.CHR_END=master.CHR_END+5
+    gg=calc_distribution(tkvar.get())
+    do_calc(gg)
+
+def minus_chr():
+    master.CHR_START=max(0,master.CHR_START-5)
+    master.CHR_END=max(0,master.CHR_END-5)
+    gg=calc_distribution(tkvar.get())
+    do_calc(gg)
     
 
 gg=calc_distribution("one_item")
@@ -168,9 +185,7 @@ c_step=int(c_max/BINS)
 
 w = Canvas(master, 
            width=canvas_width, 
-           height=canvas_height)
-
-
+           height=canvas_height, bg='lightyellow')
 
 tkvar = StringVar(master)
 choices = { 'mRNA','exon','one_item'}
@@ -186,6 +201,13 @@ choices = { 100,90,80,70,60,50,40,30,20,10}
 tkvar3.set(100)
 l4=Label(master,text="Max threshold:",width=30)
 popupMenu4 = OptionMenu(master, tkvar3, *choices, command=OptionMenu_SelectionEvent)
+
+tkvar3 = StringVar(master)
+choices = { 100,90,80,70,60,50,40,30,20,10}
+tkvar3.set(100)
+l4=Label(master,text="Max threshold:",width=30)
+popupMenu51 = Button(master,text="<<", command=minus_chr)
+popupMenu52 = Button(master,text=">>", command=add_chr)
 
 menubar = Menu(master)
 filemenu = Menu(master, tearoff=0)
@@ -209,7 +231,9 @@ l4.grid(row=3,column=0,padx=15)
 popupMenu.grid(row=0,column=1,padx=15)
 popupMenu2.grid(row=1,column=1,padx=15)
 popupMenu4.grid(row=3,column=1,padx=15)
-w.grid(row=4,column=0,columnspan=2)
+popupMenu51.grid(row=4,column=1,padx=15)
+popupMenu52.grid(row=4,column=2,padx=15)
+w.grid(row=5,column=0,columnspan=2)
 
 def do_calc(gg, qq=None):
     print("INFO\tdo_calc\tstart")
@@ -218,20 +242,23 @@ def do_calc(gg, qq=None):
 
     # reset of the chromosome view
     y_i=0
-    for y in ALL_CHRS:
+    for y in list(ALL_CHRS)[0:5]:
         w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
         y_i=y_i+1
-        
+
+    w.delete("all")
+    
     # drawing the headmap on top
     y_i=0
-    for y in gg_k:
+    for y in list(gg_k)[master.CHR_START:master.CHR_END]:
         w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
-        w.create_text(200,100*y_i+85,text="0")
+        i=w.create_text(200,100*y_i+85,text="0")
+        
         for x in range(0,BINS):
             s1=c_step*x
             s2=c_step*(x+1)
             all_e=gg[y].keys()
-            if(len(all_e)>0 and s1<max(all_e) and max(ALL_CHRS[y])>15000000):
+            if(len(all_e)>0 and s1<max(all_e)): # and max(ALL_CHRS[y])>15000000):
                 if(x==0):
                     w.create_text(50,100*y_i+40,text=y)
                     w.create_text(400,100*y_i+85,text=str(round(max(ALL_CHRS[y].keys())/1000000,2))+" Mbp")
