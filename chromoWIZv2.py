@@ -152,7 +152,7 @@ def OptionMenu_SelectionEvent2():
     filename = askopenfilename()
     fh=open(filename)
     qq={}
-    gg=calc_distribution(tkvar.get())
+    gg=calc_distribution(master.tkvar.get())
     for line in fh.readlines():
         line=line.strip()
         vals=line.split("\t")
