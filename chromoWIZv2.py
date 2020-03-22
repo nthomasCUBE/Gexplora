@@ -12,10 +12,18 @@ import json
 #   -------------------------------------------------------------------------------
 #   EXAMPLE DATA
 #
-#   Example gene: BRADI_5g16797v3
+#   Example gene: BRADI_5g16797v3/BRADI00037
 #   Example gene: ENSG00000157764
 #   -------------------------------------------------------------------------------
- 
+
+def oma_ws():
+    from omadb import Client
+    c = Client()
+    prot_id = 'P53_RAT'
+    r = c.proteins[prot_id]
+    orth=r.orthologs
+    print(orth)
+
 def gene_family_ws():
     
     print("INFO\tgene_info_ws")
@@ -268,6 +276,11 @@ filemenu2.add_command(label="Gene Information", command=gene_info)
 filemenu2.add_command(label="Gene Family",      command=gene_family)
 filemenu2.add_separator()
 menubar.add_cascade(label="Ensembl", menu=filemenu2)
+
+filemenu3 = Menu(master, tearoff=0)
+filemenu3.add_command(label="Gene Information", command=oma_ws)
+filemenu3.add_separator()
+menubar.add_cascade(label="OMA", menu=filemenu3)
 
 master.config(menu=menubar)
 
