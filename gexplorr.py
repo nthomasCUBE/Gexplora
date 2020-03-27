@@ -1,6 +1,9 @@
 #
+#   Gexplorr v0.1
+#
 #   2020/03/14: working on the relative genes tagged per total genes in Bin
 #   2020/03/15: moving through chromosomes when n_chromosomes>5
+#   2020/03/27: integration of stringdb and OMA integration
 #
 
 from tkinter import *
@@ -9,20 +12,33 @@ import numpy as np
 import requests, sys
 import json
 
-#   -------------------------------------------------------------------------------
-#   EXAMPLE DATA
-#
-#   Example gene: BRADI_5g16797v3/BRADI00037
-#   Example gene: ENSG00000157764
-#   -------------------------------------------------------------------------------
+def stringdb_ws():
+    print("stringdb_ws")
+
+    my_ids=master.display41.get("1.0","end-1c").split()
+    for my_id in my_ids:
+        server="http://string-db.org/api/tsv/"
+        ext = "abstractsList?identifiers=%s" % my_id
+        try:
+            r = requests.get(server+ext, headers={ "Content-Type" : "text/tab-separated-values"})
+            if not r.ok:
+              r.raise_for_status()
+              master.display42.insert(END,"SEQUENCE WAS NOT FOUND")
+              sys.exit()
+            else:
+                master.display42.insert(END,r.text)
+        except:
+            master.display42.insert(END,"UNABLE TO STRINGDB")
 
 def oma_ws():
     from omadb import Client
     c = Client()
-    prot_id = 'P53_RAT'
-    r = c.proteins[prot_id]
-    orth=r.orthologs
-    print(orth)
+    #prot_id = 'P53_RAT'
+    my_ids=master.display31.get("1.0","end-1c").split()
+    for my_id in my_ids:
+        r = c.proteins[my_id]
+        orth=r.orthologs
+        master.display32.insert(END,r.orthologs)
 
 def gene_family_ws():
     
@@ -96,6 +112,18 @@ master.display21 = Text(newwin2, height=5, width=50, bg="lightyellow")
 master.display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
 button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
 newwin2.destroy()
+
+newwin3 = Toplevel(master, height=10, width=25)
+master.display31 = Text(newwin3, height=5, width=50, bg="lightyellow")
+master.display32 = Text(newwin3, height=10, width=50, bg="lightyellow")
+button3 = Button(newwin3, text="Get Orthologous Group in OMA",command=oma_ws)    
+newwin3.destroy()
+
+newwin4 = Toplevel(master, height=10, width=25)
+master.display41 = Text(newwin4, height=5, width=50, bg="lightyellow")
+master.display42 = Text(newwin4, height=10, width=50, bg="lightyellow")
+button4 = Button(newwin4, text="StringDB",command=stringdb_ws)    
+newwin4.destroy()
 
 BINS=200
 
@@ -171,6 +199,19 @@ def OptionMenu_SelectionEvent2():
                 qq[MAP[vals[0]][0]][MAP[vals[0]][1]]=1
     do_calc(gg, qq)
 
+def stringdb():
+
+    print("INFO\tstringdb")
+
+    newwin4 = Toplevel(master, height=10, width=25)
+    master.display41 = Text(newwin4, height=5, width=50, bg="lightyellow")
+    master.display42 = Text(newwin4, height=10, width=50, bg="lightyellow")
+    button = Button(newwin4, text="Get Sequence",command=stringdb_ws)
+
+    master.display41.pack() 
+    master.display42.pack() 
+    button.pack()
+
 def gene_info():
 
     print("INFO\tgene_info")
@@ -184,6 +225,20 @@ def gene_info():
     master.display2.pack() 
     button.pack()
 
+
+def oma():
+
+    print("INFO\tgene_family")
+
+    newwin3 = Toplevel(master, height=10, width=25)
+    master.display31 = Text(newwin3, height=5, width=50, bg="lightyellow")
+    master.display32 = Text(newwin3, height=10, width=50, bg="lightyellow")
+    button3 = Button(newwin3, text="Orthologous Group",command=oma_ws)    
+
+    master.display31.pack() 
+    master.display32.pack() 
+    button3.pack()
+    
 def gene_family():
 
     print("INFO\tgene_family")
@@ -278,9 +333,14 @@ filemenu2.add_separator()
 menubar.add_cascade(label="Ensembl", menu=filemenu2)
 
 filemenu3 = Menu(master, tearoff=0)
-filemenu3.add_command(label="Gene Information", command=oma_ws)
+filemenu3.add_command(label="Gene Information", command=oma)
 filemenu3.add_separator()
 menubar.add_cascade(label="OMA", menu=filemenu3)
+
+filemenu4 = Menu(master, tearoff=0)
+filemenu4.add_command(label="Obtain PPI", command=stringdb)
+filemenu4.add_separator()
+menubar.add_cascade(label="StringDB", menu=filemenu4)
 
 master.config(menu=menubar)
 
