@@ -1,4 +1,4 @@
-# chromoWIZv2 (under development)
+# Gexplorr (under development)
 
 plotting the gene distribution along the Brachypodium distachyon genome.
 
@@ -8,25 +8,25 @@ to largest chromosome).
 
 Visualizing all genes from an input GTF file and Ensembl Webservice calls to retrieve sequence for a
 gene as well as gene tree for a particular human gene.
-![chromoWIZv2](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1A.png)
+![Gexplorr](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1A.png)
 
 Or searching for candidate genes by uploading the candidate genes
 
-![chromoWIZv2](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1B.png)
+![Gexplorr](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1B.png)
 
 The GTF can be taken from Ensembl and then any of the element types can be selected and visualized.
-![chromoWIZv2](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1C.png)
+![Gexplorr](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1C.png)
 
-chromoWIZ as a graphical user interface
+Gexplorr as a graphical user interface
 
 ## Ensembl Plant
 
 Ensembl provide a bunch of different endpoints to obtain data. We use some of these endpoints 
-in chromoWIZpy (https://rest.ensembl.org/).
+in Gexplorr (https://rest.ensembl.org/).
 
 ## Additional required Python Packages
 
-In chromoWIZpy, we use tkinter for the graphical user interface, while
+In Gexplorr, we use tkinter for the graphical user interface, while
 we use numpy to be faster in calculating overlaps between elements of two arrays while
 requests is used to obtain data from endpoints of Ensembl.
 
