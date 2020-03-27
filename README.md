@@ -34,6 +34,7 @@ requests is used to obtain data from endpoints of Ensembl.
 - numpy
 - requests
 - tkinter
+- json
 
 For installation under Windows, you can use the "pip.exe" that can be normally
 found in the subdirectory "scripts" within the python installation.
