@@ -1,10 +1,11 @@
 # Gexplorr (under development)
 
-plotting the gene distribution along the Brachypodium distachyon genome.
+plotting the density of genetic elements along a chromsome using GTF files (ideally from Ensembl) as input
+and using REST API calls to Ensembl, OMA and StringDB (to be done).
 
 It allows to use a GTF file as input and then to display mRNA, exon (in the second
-column) and to adapt the maximum threshold per BIN (using 200 non-overlapping bins respective
-to largest chromosome).
+column). Maximum threshold per BIN from 200 non-overlapping bins respective
+to largest chromosomes defines highest intensity.
 
 Visualizing all genes from an input GTF file and Ensembl Webservice calls to retrieve sequence for a
 gene as well as gene tree for a particular human gene.
