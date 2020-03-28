@@ -4,6 +4,7 @@
 #   2020/03/14: working on the relative genes tagged per total genes in Bin
 #   2020/03/15: moving through chromosomes when n_chromosomes>5
 #   2020/03/27: integration of stringdb and OMA integration
+#   2020/03/28: alternative gene id search for stringdb search
 #
 
 from tkinter import *
@@ -12,6 +13,9 @@ import numpy as np
 import requests, sys
 import json
 
+#
+#   StringDB
+#
 def stringdb_ws():
     print("stringdb_ws")
 
@@ -26,10 +30,22 @@ def stringdb_ws():
               master.display42.insert(END,"SEQUENCE WAS NOT FOUND")
               sys.exit()
             else:
+                if(len(r.text.split())==1):
+                    server="https://rest.ensembl.org/"
+                    ext="xrefs/id/%s?content-type=application/json" % my_id
+                    r = requests.get(server+ext, headers={ "Content-Type" : "application/json"})
+                    obj=json.loads(r.text)
+                    my_id=obj[0]["primary_id"]
+                    server="http://string-db.org/api/tsv/"
+                    ext = "abstractsList?identifiers=%s" % my_id
+                    r = requests.get(server+ext, headers={ "Content-Type" : "text/tab-separated-values"})
                 master.display42.insert(END,r.text)
         except:
             master.display42.insert(END,"UNABLE TO STRINGDB")
 
+#
+#   OMA
+#
 def oma_ws():
     from omadb import Client
     c = Client()
@@ -40,6 +56,9 @@ def oma_ws():
         orth=r.orthologs
         master.display32.insert(END,r.orthologs)
 
+#
+#   ENSEMBL
+#
 def gene_family_ws():
     
     print("INFO\tgene_info_ws")
