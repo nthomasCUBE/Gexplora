@@ -41,5 +41,13 @@ found in the subdirectory "scripts" within the python installation.
 You can install Python packages using ``pip.exe install requests''-
 
 
+##
+
+To generate the executable to run:
+pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
+
+
+
+
 
 
