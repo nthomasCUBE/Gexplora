@@ -1,5 +1,13 @@
 # Gexplorr (under development)
 
+## How to start
+
+download Gexplorr_V1.rar, unzip.
+Navigate to Gexplorr_V1/Gexplorr
+then execute it with double-click: Gexplorr.exe
+
+## Description
+
 plotting the density of genetic elements along a chromsome using GTF files (ideally from Ensembl) as input
 and using REST API calls to Ensembl, OMA and StringDB (to be done).
 
