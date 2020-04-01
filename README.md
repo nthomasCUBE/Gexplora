@@ -1,4 +1,4 @@
-# Gexplorr (under development)
+# Gexplora (under development)
 
 ## How to start
 
@@ -17,25 +17,25 @@ to largest chromosomes defines highest intensity.
 
 Visualizing all genes from an input GTF file and Ensembl Webservice calls to retrieve sequence for a
 gene as well as gene tree for a particular human gene.
-![Gexplorr](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1A.png)
+![Gexplora](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1A.png)
 
 Or searching for candidate genes by uploading the candidate genes
 
-![Gexplorr](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1B.png)
+![Gexplora](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1B.png)
 
 The GTF can be taken from Ensembl and then any of the element types can be selected and visualized.
-![Gexplorr](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1C.png)
+![Gexplora](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1C.png)
 
 Gexplorr as a graphical user interface
 
 ## Ensembl Plant
 
 Ensembl provide a bunch of different endpoints to obtain data. We use some of these endpoints 
-in Gexplorr (https://rest.ensembl.org/).
+in Gexplora (https://rest.ensembl.org/).
 
 ## Additional required Python Packages
 
-In Gexplorr, we use tkinter for the graphical user interface, while
+In Gexplora, we use tkinter for the graphical user interface, while
 we use numpy to be faster in calculating overlaps between elements of two arrays while
 requests is used to obtain data from endpoints of Ensembl.
 
