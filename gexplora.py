@@ -5,14 +5,44 @@
 #   2020/03/15: moving through chromosomes when n_chromosomes>5
 #   2020/03/27: integration of stringdb and OMA integration
 #   2020/03/28: alternative gene id search for stringdb search
-#
+#   2020/03/30: export functions - elements per chromosome
+#   2020/04/01: XlsxWriter adaption
+#   2020/04/03: adding use case using human annotation file
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import numpy as np
 import requests, sys
 import json
+import xlsxwriter
 
+#
+#   Export - Elements per Chromosome
+#
+def elements_per_chromosome():
+    print("INFO\telements per chromosome")
+    try:
+        dens={}
+        fh=open(master.gtf_file)
+        workbook = xlsxwriter.Workbook('elements_per_chromosome.xlsx')
+        worksheet = workbook.add_worksheet()
+        worksheet.write("A1","Chromosome")
+        worksheet.write("B1","Amount of elements")
+        i1=2
+        for line in fh.readlines():
+            line=line.strip()
+            vals=line.split("\t")
+            if(vals[2]==master.tkvar.get()):
+                if(dens.get(vals[0])==None):
+                    dens[vals[0]]={}
+                dens[vals[0]][vals[3]]=1
+        for dens_ in dens:
+            worksheet.write("A"+str(i1),dens_)
+            worksheet.write("B"+str(i1),len(dens[dens_].keys()))
+            i1=i1+1
+        workbook.close()
+    except Exception:
+        print("INFO\tgtf file not provided")
 #
 #   StringDB
 #
@@ -24,24 +54,27 @@ def stringdb_ws():
         server="http://string-db.org/api/tsv/"
         ext = "abstractsList?identifiers=%s" % my_id
         try:
+            print(server+ext)
             r = requests.get(server+ext, headers={ "Content-Type" : "text/tab-separated-values"})
             if not r.ok:
               r.raise_for_status()
-              master.display42.insert(END,"SEQUENCE WAS NOT FOUND")
+              master.display42.insert(END,"SEQUENCE WAS NOT FOUND\n")
               sys.exit()
             else:
                 if(len(r.text.split())==1):
                     server="https://rest.ensembl.org/"
                     ext="xrefs/id/%s?content-type=application/json" % my_id
+                    print(server+ext)
                     r = requests.get(server+ext, headers={ "Content-Type" : "application/json"})
                     obj=json.loads(r.text)
                     my_id=obj[0]["primary_id"]
+                    master.display42.insert(END,"We used following gene name:%s\n" % my_id)
                     server="http://string-db.org/api/tsv/"
                     ext = "abstractsList?identifiers=%s" % my_id
                     r = requests.get(server+ext, headers={ "Content-Type" : "text/tab-separated-values"})
                 master.display42.insert(END,r.text)
         except:
-            master.display42.insert(END,"UNABLE TO STRINGDB")
+            master.display42.insert(END,"UNABLE TO STRINGDB\n")
 
 #
 #   OMA
@@ -275,7 +308,7 @@ def add_chr():
     master.CHR_START=master.CHR_START+5
     master.CHR_END=master.CHR_END+5
     print("INFO\tadd_chr\t%i\t%i" % (master.CHR_START,master.CHR_END))
-    gg=calc_distribution(tkvar.get())
+    gg=calc_distribution(master.tkvar.get())
     do_calc(gg)
 
 def minus_chr():
@@ -285,7 +318,7 @@ def minus_chr():
         master.CHR_START=0
         master.CHR_END=5
     print("INFO\tminus_chr\t%i\t%i" % (master.CHR_START,master.CHR_END))
-    gg=calc_distribution(tkvar.get())
+    gg=calc_distribution(master.tkvar.get())
     do_calc(gg)
     
 
@@ -360,6 +393,11 @@ filemenu4 = Menu(master, tearoff=0)
 filemenu4.add_command(label="Obtain PPI", command=stringdb)
 filemenu4.add_separator()
 menubar.add_cascade(label="StringDB", menu=filemenu4)
+
+filemenu4 = Menu(master, tearoff=0)
+filemenu4.add_command(label="Elements per chromosome", command=elements_per_chromosome)
+filemenu4.add_separator()
+menubar.add_cascade(label="Export", menu=filemenu4)
 
 master.config(menu=menubar)
 
