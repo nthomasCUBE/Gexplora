@@ -2,9 +2,9 @@
 
 ## How to start
 
-1. Download Gexplorr_V1.rar, unzip it.
-2. Navigate to Gexplorr_V1/Gexplorr
-3. then execute it with double-click: Gexplorr.exe
+* Download Gexplora_V1.rar, unzip it.
+* Navigate to Gexplora_V1/Gexplora
+* Execute it with double-click: Gexplora.exe
 
 ## Description
 
