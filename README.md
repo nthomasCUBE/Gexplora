@@ -8,8 +8,8 @@
 
 ## Description
 
-plotting the density of genetic elements along a chromsome using GTF files (ideally from Ensembl) as input
-and using REST API calls to Ensembl, OMA and StringDB (to be done).
+plotting the density of genetic elements along a chromosome using GTF files (ideally from Ensembl) as input
+and using REST API calls to Ensembl, OMA and STRING database (to be done).
 
 It allows to use a GTF file as input and then to display mRNA, exon (in the second
 column). Maximum threshold per BIN from 200 non-overlapping bins respective
@@ -17,16 +17,14 @@ to largest chromosomes defines highest intensity.
 
 Visualizing all genes from an input GTF file and Ensembl Webservice calls to retrieve sequence for a
 gene as well as gene tree for a particular human gene.
-![Gexplora](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1A.png)
+![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/fig1A.png)
 
 Or searching for candidate genes by uploading the candidate genes
 
-![Gexplora](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1B.png)
+![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/fig1B.png)
 
 The GTF can be taken from Ensembl and then any of the element types can be selected and visualized.
-![Gexplora](https://github.com/nthomasCUBE/Gexplorr/blob/master/pix/fig1C.png)
-
-Gexplorr as a graphical user interface
+![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/fig1C.png)
 
 ## Ensembl Plant
 
