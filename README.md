@@ -1,4 +1,4 @@
-# Gexplora (under development)
+# Gexplora
 
 ## How to start
 
