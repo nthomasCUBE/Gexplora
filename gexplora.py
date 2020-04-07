@@ -8,6 +8,7 @@
 #   2020/03/30: export functions - elements per chromosome
 #   2020/04/01: XlsxWriter adaption
 #   2020/04/03: adding use case using human annotation file
+#   2020/04/06: export functions - elements per bin
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -15,6 +16,33 @@ import numpy as np
 import requests, sys
 import json
 import xlsxwriter
+
+#
+#   Export - Density of elements per Bin
+#
+def elements_per_bin():
+    print("INFO\telements per bin")
+    try:
+        dens={}
+        fh=open(master.gtf_file)
+        workbook = xlsxwriter.Workbook('elements_per_bin.xlsx')
+        worksheet = workbook.add_worksheet()
+        worksheet.write("A1","Chromosome")
+        worksheet.write("B1","Bin")
+        worksheet.write("C1","Amount of elements")
+        i1=2
+        for dens_ in master.DENS:
+            el=master.DENS[dens_]
+            c_i=0
+            for el_ in el:
+                worksheet.write("A"+str(i1),dens_)
+                worksheet.write("B"+str(i1),c_i)
+                worksheet.write("C"+str(i1),el_)
+                c_i=c_i+1
+                i1=i1+1
+        workbook.close()
+    except Exception:
+        print("INFO\tgtf file not provided")
 
 #
 #   Export - Elements per Chromosome
@@ -181,6 +209,8 @@ BINS=200
 
 MAP={}
 SYN={}
+
+master.DENS={}
 
 master.CHR_START=0
 master.CHR_END=5
@@ -396,6 +426,7 @@ menubar.add_cascade(label="StringDB", menu=filemenu4)
 
 filemenu4 = Menu(master, tearoff=0)
 filemenu4.add_command(label="Elements per chromosome", command=elements_per_chromosome)
+filemenu4.add_command(label="Elements per bin", command=elements_per_bin)
 filemenu4.add_separator()
 menubar.add_cascade(label="Export", menu=filemenu4)
 
@@ -416,6 +447,8 @@ def do_calc(gg, qq=None):
     chrs=[100,80,60,40,30]
     gg_k=gg.keys()
 
+    DENS={}
+
     if(master.gtf_file==None):
         return;
 
@@ -432,12 +465,14 @@ def do_calc(gg, qq=None):
     for y in list(gg_k)[master.CHR_START:master.CHR_END]:
         w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
         i=w.create_text(200,100*y_i+85,text="0")
+
+        master.DENS[y]=[]
         
         for x in range(0,BINS):
             s1=master.c_step*x
             s2=master.c_step*(x+1)
             all_e=gg[y].keys()
-            if(len(all_e)>0 and s1<max(all_e)): # and max(ALL_CHRS[y])>15000000):
+            if(len(all_e)>0 and s1<max(all_e)):
                 if(x==0):
                     w.create_text(50,100*y_i+40,text=y)
                     w.create_text(400,100*y_i+85,text=str(round(max(master.ALL_CHRS[y].keys())/1000000,2))+" Mbp")
@@ -459,6 +494,8 @@ def do_calc(gg, qq=None):
                 else:
                     cnt2=0
 
+                master.DENS[y].append(cnt)
+
                 cur_col="white"
                 if(cnt>0.8*float(tkvar3.get())):
                     cur_col="red"
@@ -475,8 +512,6 @@ def do_calc(gg, qq=None):
                 w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
         y_i=y_i+1    
     print("INFO\tdo_calc\tended")
-
-#do_calc(gg)
 
 master.mainloop()
 
