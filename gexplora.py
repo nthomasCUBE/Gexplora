@@ -178,7 +178,8 @@ def gene_info_ws():
 canvas_width = 600
 canvas_height = 600
 
-master = Tk("chromoWIZpy")
+master = Tk()
+master.title("Gexplora - visualizing density of genetic elements in a chromosome");
 master.configure(background='lightgreen')
 
 newwin = Toplevel(master, height=10, width=25)
@@ -286,6 +287,7 @@ def stringdb():
     print("INFO\tstringdb")
 
     newwin4 = Toplevel(master, height=10, width=25)
+    newwin4.title("Obtain Literature referencing the gene")
     master.display41 = Text(newwin4, height=5, width=50, bg="lightyellow")
     master.display42 = Text(newwin4, height=10, width=50, bg="lightyellow")
     button = Button(newwin4, text="Get Sequence",command=stringdb_ws)
@@ -299,6 +301,7 @@ def gene_info():
     print("INFO\tgene_info")
 
     newwin = Toplevel(master, height=10, width=25)
+    newwin.title("Get Sequence from sequence identifier")
     master.display = Text(newwin, height=5, width=50, bg="lightyellow")
     master.display2 = Text(newwin, height=10, width=50, bg="lightyellow")
     button = Button(newwin, text="Get Sequence",command=gene_info_ws)
@@ -313,6 +316,7 @@ def oma():
     print("INFO\tgene_family")
 
     newwin3 = Toplevel(master, height=10, width=25)
+    newwin3.title("Get Orthologous Group")
     master.display31 = Text(newwin3, height=5, width=50, bg="lightyellow")
     master.display32 = Text(newwin3, height=10, width=50, bg="lightyellow")
     button3 = Button(newwin3, text="Orthologous Group",command=oma_ws)    
@@ -326,6 +330,7 @@ def gene_family():
     print("INFO\tgene_family")
 
     newwin2 = Toplevel(master, height=10, width=25)
+    newwin2.title("Get Gene Family from Gene Identifier")
     master.display21 = Text(newwin2, height=5, width=50, bg="lightyellow")
     master.display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
     button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
