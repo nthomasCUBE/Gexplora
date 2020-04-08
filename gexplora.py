@@ -9,6 +9,7 @@
 #   2020/04/01: XlsxWriter adaption
 #   2020/04/03: adding use case using human annotation file
 #   2020/04/06: export functions - elements per bin
+#   2020/04/08: fixed ordering of the chromosomes and added title in interfaces
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -399,8 +400,10 @@ def get_gtf_file():
         vals=line.split("\t")
         if(len(vals)==9):
             choices[vals[2]]=1
+    choices=list(choices)
+    choices.insert(0,"---")
     master.tkvar = StringVar(master)
-    master.tkvar.set('mRNA')
+    master.tkvar.set('---')
     l1=Label(master,text="Element type:",width=30)
     master.popupMenu = OptionMenu(master, master.tkvar, *choices, command=OptionMenu_SelectionEvent)
     master.popupMenu.grid(row=0,column=1,padx=15)
@@ -464,10 +467,12 @@ def do_calc(gg, qq=None):
         y_i=y_i+1
 
     w.delete("all")
+
+    gg_k_sort=sorted(list(gg_k))
     
     # drawing the headmap on top
     y_i=0
-    for y in list(gg_k)[master.CHR_START:master.CHR_END]:
+    for y in gg_k_sort[master.CHR_START:master.CHR_END]:
         w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
         i=w.create_text(200,100*y_i+85,text="0")
 
