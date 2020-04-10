@@ -10,6 +10,7 @@
 #   2020/04/03: adding use case using human annotation file
 #   2020/04/06: export functions - elements per bin
 #   2020/04/08: fixed ordering of the chromosomes and added title in interfaces
+#   2020/04/09: dynamic way to use Bins (e.g. 100, 200, 500, 1000)
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -207,8 +208,6 @@ master.display42 = Text(newwin4, height=10, width=50, bg="lightyellow")
 button4 = Button(newwin4, text="StringDB",command=stringdb_ws)    
 newwin4.destroy()
 
-BINS=200
-
 MAP={}
 SYN={}
 
@@ -257,7 +256,7 @@ def calc_distribution(c_type):
     c_max=-1
     for gg_ in master.ALL_CHRS:
         c_max=max(c_max,max(master.ALL_CHRS[gg_]))
-    master.c_step=int(c_max/BINS)
+    master.c_step=int(c_max/int(tkvar6.get()))
 
     return(gg)
 
@@ -356,7 +355,11 @@ def minus_chr():
     print("INFO\tminus_chr\t%i\t%i" % (master.CHR_START,master.CHR_END))
     gg=calc_distribution(master.tkvar.get())
     do_calc(gg)
-    
+
+def do_recalc(event):
+    print("INFO\tdo_recalc")
+    gg=calc_distribution(master.tkvar.get())
+    do_calc(gg)
 
 #gg=calc_distribution("one_item")
 #c_max=0
@@ -389,6 +392,12 @@ tkvar3.set(100)
 l4=Label(master,text="Max threshold:",width=30)
 popupMenu51 = Button(master,text="<<", command=minus_chr)
 popupMenu52 = Button(master,text=">>", command=add_chr)
+
+tkvar6 = StringVar(master)
+choices = { 100,150,200,250,300}
+tkvar6.set(200)
+l6=Label(master,text="Bins total:",width=30)
+popupMenu6 = OptionMenu(master, tkvar6, *choices, command=do_recalc)
 
 def get_gtf_file():
     master.gtf_file = askopenfilename()
@@ -443,12 +452,14 @@ master.config(menu=menubar)
 l1.grid(row=0,column=0,padx=15)
 l2.grid(row=1,column=0,padx=15)
 l4.grid(row=3,column=0,padx=15)
+l6.grid(row=4,column=0,padx=15)
 #master.popupMenu.grid(row=0,column=1,padx=15)
 popupMenu2.grid(row=1,column=1,padx=15)
 popupMenu4.grid(row=3,column=1,padx=15)
-popupMenu51.grid(row=4,column=1,padx=15)
-popupMenu52.grid(row=4,column=2,padx=15)
-w.grid(row=5,column=0,columnspan=2)
+popupMenu6.grid(row=4,column=1,padx=15)
+popupMenu51.grid(row=5,column=1,padx=15)
+popupMenu52.grid(row=5,column=2,padx=15)
+w.grid(row=6,column=0,columnspan=2)
 
 def do_calc(gg, qq=None):
     print("INFO\tdo_calc\tstart")
@@ -473,12 +484,12 @@ def do_calc(gg, qq=None):
     # drawing the headmap on top
     y_i=0
     for y in gg_k_sort[master.CHR_START:master.CHR_END]:
-        w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
+        w.create_rectangle(100,100*y_i+10,300+int(tkvar6.get()),100*y_i+90,fill="white")
         i=w.create_text(200,100*y_i+85,text="0")
 
         master.DENS[y]=[]
         
-        for x in range(0,BINS):
+        for x in range(0,int(tkvar6.get())):
             s1=master.c_step*x
             s2=master.c_step*(x+1)
             all_e=gg[y].keys()
