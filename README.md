@@ -31,6 +31,10 @@ The GTF can be taken from Ensembl and then any of the element types can be selec
 Ensembl provide a bunch of different endpoints to obtain data. We use some of these endpoints 
 in Gexplora (https://rest.ensembl.org/).
 
+## Use case - barley genome
+
+![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/Gexplora_Barley.png)
+
 ## Additional required Python Packages
 
 In Gexplora, we use tkinter for the graphical user interface, while
