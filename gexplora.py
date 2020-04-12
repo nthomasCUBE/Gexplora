@@ -11,6 +11,7 @@
 #   2020/04/06: export functions - elements per bin
 #   2020/04/08: fixed ordering of the chromosomes and added title in interfaces
 #   2020/04/09: dynamic way to use Bins (e.g. 100, 200, 500, 1000)
+#   2020/04/12: adding barley use case
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
