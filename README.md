@@ -31,6 +31,14 @@ The GTF can be taken from Ensembl and then any of the element types can be selec
 Ensembl provide a bunch of different endpoints to obtain data. We use some of these endpoints 
 in Gexplora (https://rest.ensembl.org/).
 
+## Use case - Human genome
+
+The annotation was downloaded from Ensembl ![Ensembl-Human](ftp://ftp.ensembl.org/pub/release-99/gff3/homo_sapiens/Homo_sapiens.GRCh38.99.chr.gff3.gz).
+
+## Linechart (not yet included into .exe)
+
+![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/Gexplora_Linechart.png)
+
 ## Use case - barley genome
 
 The annotation was downloaded from Ensembl ![Ensembl-Barley](ftp://ftp.ensemblgenomes.org/pub/plants/release-46/gff3/hordeum_vulgare).
