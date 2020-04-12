@@ -36,6 +36,8 @@ in Gexplora (https://rest.ensembl.org/).
 The annotation was downloaded from Ensembl ![Ensembl-Barley](ftp://ftp.ensemblgenomes.org/pub/plants/release-46/gff3/hordeum_vulgare).
 and gene distribution was shown while also all other types can be shown in the density visualisation.
 ![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/Gexplora_Barley.png)
+![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/Gexplora_Barley_Details.png)
+
 
 ## Additional required Python Packages
 
