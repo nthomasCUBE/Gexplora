@@ -12,6 +12,8 @@
 #   2020/04/08: fixed ordering of the chromosomes and added title in interfaces
 #   2020/04/09: dynamic way to use Bins (e.g. 100, 200, 500, 1000)
 #   2020/04/12: adding barley use case
+#   2020/04/12: fixing visualization when using different amounts of Bins per chr
+#   2020/04/12: adding line charts
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -114,12 +116,18 @@ def oma_ws():
     from omadb import Client
     c = Client()
     #prot_id = 'P53_RAT'
+    
     my_ids=master.display31.get("1.0","end-1c").split()
-    for my_id in my_ids:
-        r = c.proteins[my_id]
-        orth=r.orthologs
-        master.display32.insert(END,r.orthologs)
-
+    if(len(my_ids)==0):
+        master.display32.insert(END,"No orthologous proteins found")
+    else:        
+        for my_id in my_ids:
+            try:
+                r = c.proteins[my_id]
+                orth=r.orthologs
+                master.display32.insert(END,r.orthologs)
+            except Exception:
+                master.display32.insert(END,"UNABLE TO FIND PROTEIN")
 #
 #   ENSEMBL
 #
@@ -135,25 +143,27 @@ def gene_family_ws():
         ext = "/family/member/id/%s?content-type=application/json" % my_id
         try: 
             r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
-             
             if not r.ok:
               r.raise_for_status()
               master.display22.insert(END,"SEQUENCE WAS NOT FOUND")
               sys.exit()
             else:
                 obj = json.loads(r.text)
-                mem=obj["1"]["members"]
-                for mem_ in mem:
-                    psi="-"
-                    gen="-"
-                    if(mem_.get("protein_stable_id")!=None):
-                        psi=mem_["protein_stable_id"]
-                    if(mem_.get("genome")!=None):
-                        gen=mem_["genome"]
-                    if(mem_.get("description")!=None):
-                        desc=mem_["description"]
-                    master.display22.insert(END,psi+"\t"+gen+"\t"+desc)
-                    master.display22.insert(END,"\n")
+                if(len(obj)==0):
+                    master.display22.insert(END,"NO GENE FAMILY FOUND")
+                else:
+                    mem=obj["1"]["members"]
+                    for mem_ in mem:
+                        psi="-"
+                        gen="-"
+                        if(mem_.get("protein_stable_id")!=None):
+                            psi=mem_["protein_stable_id"]
+                        if(mem_.get("genome")!=None):
+                            gen=mem_["genome"]
+                        if(mem_.get("description")!=None):
+                            desc=mem_["description"]
+                        master.display22.insert(END,psi+"\t"+gen+"\t"+desc)
+                        master.display22.insert(END,"\n")
         except:
             master.display22.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
     
@@ -257,7 +267,7 @@ def calc_distribution(c_type):
     c_max=-1
     for gg_ in master.ALL_CHRS:
         c_max=max(c_max,max(master.ALL_CHRS[gg_]))
-    master.c_step=int(c_max/int(tkvar6.get()))
+    master.c_step=int(c_max/int(master.tkvar6.get()))
 
     return(gg)
 
@@ -394,11 +404,16 @@ l4=Label(master,text="Max threshold:",width=30)
 popupMenu51 = Button(master,text="<<", command=minus_chr)
 popupMenu52 = Button(master,text=">>", command=add_chr)
 
-tkvar6 = StringVar(master)
+master.tkvar6 = StringVar(master)
 choices = { 100,150,200,250,300}
-tkvar6.set(200)
+master.tkvar6.set(200)
 l6=Label(master,text="Bins total:",width=30)
-popupMenu6 = OptionMenu(master, tkvar6, *choices, command=do_recalc)
+popupMenu6 = OptionMenu(master, master.tkvar6, *choices, command=do_recalc)
+
+var1 = IntVar()
+var2 = IntVar()
+var1.set(1)
+var2.set(1)
 
 def get_gtf_file():
     master.gtf_file = askopenfilename()
@@ -460,7 +475,9 @@ popupMenu4.grid(row=3,column=1,padx=15)
 popupMenu6.grid(row=4,column=1,padx=15)
 popupMenu51.grid(row=5,column=1,padx=15)
 popupMenu52.grid(row=5,column=2,padx=15)
-w.grid(row=6,column=0,columnspan=2)
+tkvar71=Checkbutton(master, text="Linechart", variable=var1).grid(row=6, column=1,sticky=W)
+tkvar72=Checkbutton(master, text="Heatmap", variable=var2).grid(row=7, column=1, sticky=W)
+w.grid(row=8,column=0,columnspan=2)
 
 def do_calc(gg, qq=None):
     print("INFO\tdo_calc\tstart")
@@ -485,19 +502,19 @@ def do_calc(gg, qq=None):
     # drawing the headmap on top
     y_i=0
     for y in gg_k_sort[master.CHR_START:master.CHR_END]:
-        w.create_rectangle(100,100*y_i+10,300+int(tkvar6.get()),100*y_i+90,fill="white")
+        w.create_rectangle(100,100*y_i+10,300+int(master.tkvar6.get()),100*y_i+90,fill="white")
         i=w.create_text(200,100*y_i+85,text="0")
 
         master.DENS[y]=[]
-        
-        for x in range(0,int(tkvar6.get())):
+
+        for x in range(0,int(master.tkvar6.get())):
             s1=master.c_step*x
             s2=master.c_step*(x+1)
             all_e=gg[y].keys()
             if(len(all_e)>0 and s1<max(all_e)):
                 if(x==0):
                     w.create_text(50,100*y_i+40,text=y)
-                    w.create_text(400,100*y_i+85,text=str(round(max(master.ALL_CHRS[y].keys())/1000000,2))+" Mbp")
+                    w.create_text(300+(int(master.tkvar6.get())-100),100*y_i+85,text=str(round(max(master.ALL_CHRS[y].keys())/1000000,2))+" Mbp")
 
                 xarr=list(all_e)
                 xarr=np.array(xarr)
@@ -531,7 +548,13 @@ def do_calc(gg, qq=None):
                     cur_col="blue"
                 elif(cnt==0):
                     cur_col="#e0e0d1"
-                w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
+                if(var2.get()):
+                    w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
+                if(x>0):
+                    if(var1.get()):
+                        w.create_line(200+x-1,100*y_i+100-20-0.6*master.DENS[y][x-1]*0.6,200+x,100*y_i+100-20-0.6*cnt,fill=cur_col)                                
+
+                
         y_i=y_i+1    
     print("INFO\tdo_calc\tended")
 
