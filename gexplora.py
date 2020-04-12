@@ -391,15 +391,15 @@ master.popupMenu = OptionMenu(master, master.tkvar, *choices, command=OptionMenu
 l2=Label(master,text="Candidate genes:",width=30)
 popupMenu2=Button(master,text="Find genes (from a text-file)", command=OptionMenu_SelectionEvent2)
 
-tkvar3 = StringVar(master)
+master.tkvar3 = StringVar(master)
 choices = { 100,90,80,70,60,50,40,30,20,10}
-tkvar3.set(100)
+master.tkvar3.set(100)
 l4=Label(master,text="Max threshold:",width=30)
-popupMenu4 = OptionMenu(master, tkvar3, *choices, command=OptionMenu_SelectionEvent)
+popupMenu4 = OptionMenu(master, master.tkvar3, *choices, command=OptionMenu_SelectionEvent)
 
-tkvar3 = StringVar(master)
-choices = { 100,90,80,70,60,50,40,30,20,10}
-tkvar3.set(100)
+#tkvar3 = StringVar(master)
+#choices = { 100,90,80,70,60,50,40,30,20,10}
+#tkvar3.set(100)
 l4=Label(master,text="Max threshold:",width=30)
 popupMenu51 = Button(master,text="<<", command=minus_chr)
 popupMenu52 = Button(master,text=">>", command=add_chr)
@@ -526,35 +526,37 @@ def do_calc(gg, qq=None):
                 if(qq!=None):
                     if(qq.get(y)!=None):
                         cnt2=np.array(list(qq[y].keys()))
-                        if(cnt>0):
-                            cnt2_N=len(cnt2[np.isin(cnt2,xarr)])
-                            cnt2=round(100.0*cnt2_N/len(xarr))
-                    cnt=cnt2_N
+                        cnt2=len(cnt2[np.isin(cnt2,xarr)])
+                    cnt=cnt2
                 else:
                     cnt2=0
 
                 master.DENS[y].append(cnt)
 
                 cur_col="white"
-                if(cnt>0.8*float(tkvar3.get())):
+                if(cnt>0.8*float(master.tkvar3.get())):
                     cur_col="red"
-                elif(cnt>0.3*float(tkvar3.get())):
+                elif(cnt>0.3*float(master.tkvar3.get())):
                     cur_col="orange"
-                elif(cnt>0.2*float(tkvar3.get())):
+                elif(cnt>0.2*float(master.tkvar3.get())):
                     cur_col="green"
-                elif(cnt>0.1*float(tkvar3.get())):
+                elif(cnt>0.1*float(master.tkvar3.get())):
                     cur_col="yellow"
-                elif(cnt>0*float(tkvar3.get())):
+                elif(cnt>0*float(master.tkvar3.get())):
                     cur_col="blue"
                 elif(cnt==0):
                     cur_col="#e0e0d1"
                 if(var2.get()):
                     w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
+                    cur_col="black"
+
                 if(x>0):
                     if(var1.get()):
                         w.create_line(200+x-1,100*y_i+100-20-0.6*master.DENS[y][x-1]*0.6,200+x,100*y_i+100-20-0.6*cnt,fill=cur_col)                                
-
-                
+            if(x==(int(master.tkvar6.get())-1)):
+                w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+25,text=str("max:"+str(round(max(master.DENS[y]),0))))
+                w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+37,text=str("avg:"+str(round(sum(master.DENS[y])/len(master.DENS[y]),0))))
+                w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+49,text=str("min:"+str(round(min(master.DENS[y]),0))))
         y_i=y_i+1    
     print("INFO\tdo_calc\tended")
 
