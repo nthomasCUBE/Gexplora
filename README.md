@@ -22,6 +22,14 @@ gene as well as gene tree for a particular human gene.
 
 ![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/fig1A.png)
 
+## Distribution of Candidate genes provided by user
+
+Here we used the entire genes as input. Here, we show the amount of genes per bin that are tagged
+compared to the genes that are to be found within the given bin. If no candidate genes are provided, the
+overall distribution of genes is shown.
+
+![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/Gexplora_tagged_genes.png)
+
 Or searching for candidate genes by uploading the candidate genes
 
 ![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/fig1B.png)
