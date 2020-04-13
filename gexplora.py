@@ -1,5 +1,5 @@
 #
-#   Gexplorr v0.1
+#   Gexplorr v0.1b
 #
 #   2020/03/14: working on the relative genes tagged per total genes in Bin
 #   2020/03/15: moving through chromosomes when n_chromosomes>5
@@ -30,7 +30,7 @@ def elements_per_bin():
     print("INFO\telements per bin")
     try:
         dens={}
-        fh=open(master.gtf_file)
+        fh=open(master.gtf_file, encoding="latin-1")
         workbook = xlsxwriter.Workbook('elements_per_bin.xlsx')
         worksheet = workbook.add_worksheet()
         worksheet.write("A1","Chromosome")
@@ -57,7 +57,7 @@ def elements_per_chromosome():
     print("INFO\telements per chromosome")
     try:
         dens={}
-        fh=open(master.gtf_file)
+        fh=open(master.gtf_file, encoding="latin-1")
         workbook = xlsxwriter.Workbook('elements_per_chromosome.xlsx')
         worksheet = workbook.add_worksheet()
         worksheet.write("A1","Chromosome")
@@ -420,7 +420,7 @@ def get_gtf_file():
     master.gtf_file = askopenfilename()
 
     choices={}
-    fh=open(master.gtf_file)
+    fh=open(master.gtf_file, encoding="latin-1")
     for line in fh.readlines():
         line=line.strip()
         vals=line.split("\t")
