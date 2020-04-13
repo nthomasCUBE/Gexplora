@@ -498,8 +498,29 @@ def do_calc(gg, qq=None):
     w.delete("all")
 
     gg_k_sort=sorted(list(gg_k))
+
+    max_nmb_elements=0;
+
+    #
+    # getting maximum amount of elements in any bin
+    #
+    for y in gg_k_sort[master.CHR_START:master.CHR_END]:
+        for x in range(0,int(master.tkvar6.get())):
+            s1=master.c_step*x
+            s2=master.c_step*(x+1)
+            all_e=gg[y].keys()
+            if(len(all_e)>0 and s1<max(all_e)):
+                xarr=list(all_e)
+                xarr=np.array(xarr)
+                xarr=xarr[xarr>=s1]
+                xarr=xarr[xarr<=s2]
+                cnt=len(xarr)
+                if(cnt>max_nmb_elements):
+                    max_nmb_elements=cnt
     
+    #
     # drawing the headmap on top
+    #
     y_i=0
     for y in gg_k_sort[master.CHR_START:master.CHR_END]:
         w.create_rectangle(100,100*y_i+10,300+int(master.tkvar6.get()),100*y_i+90,fill="white")
@@ -507,6 +528,11 @@ def do_calc(gg, qq=None):
 
         master.DENS[y]=[]
 
+        print("max_nmb_elements=%s" % max_nmb_elements)
+        
+        #
+        #   Plotting the bins
+        #
         for x in range(0,int(master.tkvar6.get())):
             s1=master.c_step*x
             s2=master.c_step*(x+1)
@@ -527,24 +553,25 @@ def do_calc(gg, qq=None):
                     if(qq.get(y)!=None):
                         cnt2=np.array(list(qq[y].keys()))
                         cnt2=len(cnt2[np.isin(cnt2,xarr)])
-                    cnt=cnt2
+                        cnt2=(100.0*float(cnt2))/float(max_nmb_elements)
+                        print(cnt2)
                 else:
-                    cnt2=0
-
-                master.DENS[y].append(cnt)
+                    cnt2=(100.0*float(cnt))/float(max_nmb_elements)
+                    
+                master.DENS[y].append(cnt2)
 
                 cur_col="white"
-                if(cnt>0.8*float(master.tkvar3.get())):
+                if(cnt2>0.8*float(master.tkvar3.get())):
                     cur_col="red"
-                elif(cnt>0.3*float(master.tkvar3.get())):
+                elif(cnt2>0.3*float(master.tkvar3.get())):
                     cur_col="orange"
-                elif(cnt>0.2*float(master.tkvar3.get())):
+                elif(cnt2>0.2*float(master.tkvar3.get())):
                     cur_col="green"
-                elif(cnt>0.1*float(master.tkvar3.get())):
+                elif(cnt2>0.1*float(master.tkvar3.get())):
                     cur_col="yellow"
-                elif(cnt>0*float(master.tkvar3.get())):
+                elif(cnt2>0*float(master.tkvar3.get())):
                     cur_col="blue"
-                elif(cnt==0):
+                elif(cnt2==0):
                     cur_col="#e0e0d1"
                 if(var2.get()):
                     w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
@@ -552,7 +579,7 @@ def do_calc(gg, qq=None):
 
                 if(x>0):
                     if(var1.get()):
-                        w.create_line(200+x-1,100*y_i+100-20-0.6*master.DENS[y][x-1]*0.6,200+x,100*y_i+100-20-0.6*cnt,fill=cur_col)                                
+                        w.create_line(200+x-1,100*y_i+100-20-0.6*master.DENS[y][x-1]*0.6,200+x,100*y_i+100-20-0.6*master.DENS[y][x]*0.6,fill=cur_col)                                
             if(x==(int(master.tkvar6.get())-1)):
                 w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+25,text=str("max:"+str(round(max(master.DENS[y]),0))))
                 w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+37,text=str("avg:"+str(round(sum(master.DENS[y])/len(master.DENS[y]),0))))
