@@ -2,9 +2,9 @@
 
 ## How to start
 
-* Download Gexplora_V1.rar, unzip it.
-* Navigate to Gexplora_V1/Gexplora
-* Execute it with double-click: Gexplora.exe
+* Download **Gexplora_V1.rar**, unzip it.
+* Navigate to **Gexplora_V1/Gexplora**
+* Execute it with double-click: **Gexplora.exe**
 
 ## Description
 
@@ -56,10 +56,10 @@ In Gexplora, we use tkinter for the graphical user interface, while
 we use numpy to be faster in calculating overlaps between elements of two arrays while
 requests is used to obtain data from endpoints of Ensembl.
 
-- numpy
-- requests
-- tkinter
-- json
+- **numpy**
+- **requests**
+- **tkinter**
+- **json**
 
 For installation under Windows, you can use the "pip.exe" that can be normally
 found in the subdirectory "scripts" within the python installation.
