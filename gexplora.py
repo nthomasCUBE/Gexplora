@@ -14,6 +14,7 @@
 #   2020/04/12: adding barley use case
 #   2020/04/12: fixing visualization when using different amounts of Bins per chr
 #   2020/04/12: adding line charts
+#   2020/04/13: if candidate genes are provided, the relative amount per bin is shown [0,100]
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -553,7 +554,7 @@ def do_calc(gg, qq=None):
                     if(qq.get(y)!=None):
                         cnt2=np.array(list(qq[y].keys()))
                         cnt2=len(cnt2[np.isin(cnt2,xarr)])
-                        cnt2=(100.0*float(cnt2))/float(max_nmb_elements)
+                        cnt2=(100.0*float(cnt2))/float(cnt)
                         print(cnt2)
                 else:
                     cnt2=(100.0*float(cnt))/float(max_nmb_elements)
