@@ -1,5 +1,5 @@
 #
-#   Gexplora v0.1b
+#   Gexplora v0.1c
 #
 #   2020/03/14: working on the relative genes tagged per total genes in Bin
 #   2020/03/15: moving through chromosomes when n_chromosomes>5
@@ -16,6 +16,7 @@
 #   2020/04/12: adding line charts
 #   2020/04/13: if candidate genes are provided, the relative amount per bin is shown [0,100]
 #   2020/04/15: adding legend, improved relative frequency visualization
+#   2020/04/16: introducing random id when no ID exists in an entry
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -249,6 +250,7 @@ def calc_distribution(c_type):
         return;
     
     fh=open(master.gtf_file)
+    ri=0
     for line in fh.readlines():
         line=line.strip()
         vals=line.split("\t")
@@ -261,7 +263,11 @@ def calc_distribution(c_type):
             if(len(vals)>0 and vals[2]==c_type):
                 genomes[vals[0]]=1
                 c_v=min(int(vals[3]),int(vals[4]))
-                c_id=vals[8].split("ID=")[1].split(";")[0]
+                if(vals[8].find("ID=")!=-1):
+                    c_id=vals[8].split("ID=")[1].split(";")[0]
+                else:
+                    c_id="random_%i" % (ri)
+                    ri=ri+1
                 gg[vals[0]][c_v]=1
                 MAP[c_id]=[vals[0],c_v]
                 if(c_v>c_max):
@@ -605,9 +611,10 @@ def do_calc(gg, qq=None):
                     if(var1.get()):
                         w.create_line(200+x-1,100*y_i+100-20-0.6*master.DENS[y][x-1]*0.6,200+x,100*y_i+100-20-0.6*master.DENS[y][x]*0.6,fill=cur_col)                                
             if(x==(int(master.tkvar6.get())-1)):
-                w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+25,text=str("max:"+str(round(max(master.DENS[y]),0))))
-                w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+37,text=str("avg:"+str(round(sum(master.DENS[y])/len(master.DENS[y]),0))))
-                w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+49,text=str("min:"+str(round(min(master.DENS[y]),0))))
+                if(len(master.DENS[y])>0):
+                    w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+25,text=str("max:"+str(round(max(master.DENS[y]),0))))
+                    w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+37,text=str("avg:"+str(round(sum(master.DENS[y])/len(master.DENS[y]),0))))
+                    w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+49,text=str("min:"+str(round(min(master.DENS[y]),0))))
         y_i=y_i+1    
     print("INFO\tdo_calc\tended")
 
