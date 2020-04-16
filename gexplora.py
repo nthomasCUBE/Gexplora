@@ -1,5 +1,5 @@
 #
-#   Gexplorr v0.1b
+#   Gexplora v0.1b
 #
 #   2020/03/14: working on the relative genes tagged per total genes in Bin
 #   2020/03/15: moving through chromosomes when n_chromosomes>5
@@ -15,6 +15,7 @@
 #   2020/04/12: fixing visualization when using different amounts of Bins per chr
 #   2020/04/12: adding line charts
 #   2020/04/13: if candidate genes are provided, the relative amount per bin is shown [0,100]
+#   2020/04/15: adding legend, improved relative frequency visualization
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -66,15 +67,17 @@ def elements_per_chromosome():
         for line in fh.readlines():
             line=line.strip()
             vals=line.split("\t")
-            if(vals[2]==master.tkvar.get()):
-                if(dens.get(vals[0])==None):
-                    dens[vals[0]]={}
-                dens[vals[0]][vals[3]]=1
+            if(len(vals)>8):
+                if(vals[2]==master.tkvar.get()):
+                    if(dens.get(vals[0])==None):
+                        dens[vals[0]]={}
+                    dens[vals[0]][vals[3]]=1
         for dens_ in dens:
             worksheet.write("A"+str(i1),dens_)
             worksheet.write("B"+str(i1),len(dens[dens_].keys()))
             i1=i1+1
         workbook.close()
+        print("JA-3")
     except Exception:
         print("INFO\tgtf file not provided")
 #
@@ -437,7 +440,7 @@ def get_gtf_file():
 menubar = Menu(master)
 filemenu = Menu(master, tearoff=0)
 filemenu.add_command(label="Open", command=get_gtf_file)
-filemenu.add_command(label="Save")
+#filemenu.add_command(label="Save")
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=master.quit)
 menubar.add_cascade(label="File", menu=filemenu)
@@ -505,7 +508,7 @@ def do_calc(gg, qq=None):
     #
     # getting maximum amount of elements in any bin
     #
-    for y in gg_k_sort[master.CHR_START:master.CHR_END]:
+    for y in gg_k_sort: #[master.CHR_START:master.CHR_END]:
         for x in range(0,int(master.tkvar6.get())):
             s1=master.c_step*x
             s2=master.c_step*(x+1)
@@ -529,8 +532,8 @@ def do_calc(gg, qq=None):
 
         master.DENS[y]=[]
 
-        print("max_nmb_elements=%s" % max_nmb_elements)
-        
+        #print("max_nmb_elements=%s" % max_nmb_elements)
+
         #
         #   Plotting the bins
         #
@@ -555,7 +558,6 @@ def do_calc(gg, qq=None):
                         cnt2=np.array(list(qq[y].keys()))
                         cnt2=len(cnt2[np.isin(cnt2,xarr)])
                         cnt2=(100.0*float(cnt2))/float(cnt)
-                        print(cnt2)
                 else:
                     cnt2=(100.0*float(cnt))/float(max_nmb_elements)
                     
@@ -577,6 +579,27 @@ def do_calc(gg, qq=None):
                 if(var2.get()):
                     w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
                     cur_col="black"
+
+                if(x==0):
+                    w.create_rectangle(520,100,540,110,fill="blue")
+                    w.create_rectangle(520,90,540,100,fill="yellow")
+                    w.create_rectangle(520,80,540,90,fill="green")
+                    w.create_rectangle(520,70,540,80,fill="orange")
+                    w.create_rectangle(520,60,540,70,fill="red")
+
+                    w.create_text(570,65,text=">80%")
+                    w.create_text(570,75,text="[30%,80%]")
+                    w.create_text(570,85,text="[20%,30%]")
+                    w.create_text(570,95,text="[10%,20%]")
+                    w.create_text(570,105,text="]0,10%]")
+
+
+                # not started yet - circular diagrams
+                #w.create_arc(100,100,200,200,fill="red")
+                #w.create_arc(200,200,100,300,fill="blue")
+                #w.create_arc(100,300,0,200,fill="orange")
+                #w.create_arc(0,200,100,100,fill="green")
+
 
                 if(x>0):
                     if(var1.get()):
