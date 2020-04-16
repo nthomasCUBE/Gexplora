@@ -3,7 +3,7 @@
 ## How to start
 
 * Download **Gexplora_V1c.rar**, unzip it.
-* Navigate to **Gexplora_V1c/Gexplora**
+* Navigate to **Gexplora/Gexplora**
 * Execute it with double-click: **Gexplora.exe**
 
 ## Description
