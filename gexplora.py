@@ -28,7 +28,7 @@ import requests, sys
 import json
 import xlsxwriter
 from webbrowser import open_new_tab
-    
+
 #
 #   Export - Density of elements per Bin
 #
@@ -208,26 +208,35 @@ def cis_element_analysis():
     f2=open('cur_seq.fasta','w')
     my_ids=master.display51.get("1.0","end-1c").split()
     for my_id in my_ids:
-        f2.write(my_id)
+        f2.write(my_id+"\n")
     f2.close()
-    
+
+    body="<title>Cis element analysis</title><h1>Results</h1>"
+
+    body=body+"""
+    <table border=1>
+    <thead>
+    <tr>
+    <th>Sequence</th>
+    <th>Sequence-Length</th>
+    <th>Promoter-Results</th>
+    </tr>
+    </thead>
+    """
     for record in SeqIO.parse('cur_seq.fasta', "fasta"):
         print("%s %i" % (record.id, len(record)))
-
+        body=body+"<tr><td>%s</td><td>%i</td><td>---</td></tr>" % (record.id,len(record))
+    body=body+"<table>"
+    print(body)
     wrapper = """<html>
     <head>
-    <title>output - %s</title>
     </head>
-    <body><p>URL: <a href=\"%s\">%s</a></p><p>%s</p></body>
+    <body>%s</body>
     </html>"""
 
     url="";
-    body="Output of the cis Element analysis";
-
     
-
-    
-    whole = wrapper % (now, url, url, body)
+    whole = wrapper % (body)
     f.write(whole)
     f.close()
 
@@ -539,9 +548,9 @@ filemenu4.add_separator()
 menubar.add_cascade(label="Export", menu=filemenu4)
 
 filemenu5 = Menu(master, tearoff=0)
-filemenu5.add_command(label="Elements per bin", command=cisAnalysis)
+filemenu5.add_command(label="Cis-element (input: promoter fasta sequences into textbox)", command=cisAnalysis)
 filemenu5.add_separator()
-menubar.add_cascade(label="Cis elements analysis", menu=filemenu5)
+menubar.add_cascade(label="Cis-elements (under development)", menu=filemenu5)
 
 master.config(menu=menubar)
 
