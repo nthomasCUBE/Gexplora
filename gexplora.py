@@ -1,5 +1,5 @@
 #
-#   Gexplora v0.1c
+#   Gexplora v0.1d
 #
 #   2020/03/14: working on the relative genes tagged per total genes in Bin
 #   2020/03/15: moving through chromosomes when n_chromosomes>5
@@ -17,14 +17,18 @@
 #   2020/04/13: if candidate genes are provided, the relative amount per bin is shown [0,100]
 #   2020/04/15: adding legend, improved relative frequency visualization
 #   2020/04/16: introducing random id when no ID exists in an entry
+#   2020/04/26: beginn cis-element analysis panel
 
+from Bio import SeqIO
+import datetime
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import numpy as np
 import requests, sys
 import json
 import xlsxwriter
-
+from webbrowser import open_new_tab
+    
 #
 #   Export - Density of elements per Bin
 #
@@ -193,6 +197,46 @@ def gene_info_ws():
         except:
             master.display2.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
 
+def cis_element_analysis():
+    print("cis_element_analysis")
+
+
+    now = datetime.datetime.today().strftime("%Y%m%d-%H%M%S")
+    filename = "cis_element_analysis"+ '.html'
+    f = open(filename,'w')
+
+    f2=open('cur_seq.fasta','w')
+    my_ids=master.display51.get("1.0","end-1c").split()
+    for my_id in my_ids:
+        f2.write(my_id)
+    f2.close()
+    
+    for record in SeqIO.parse('cur_seq.fasta', "fasta"):
+        print("%s %i" % (record.id, len(record)))
+
+    wrapper = """<html>
+    <head>
+    <title>output - %s</title>
+    </head>
+    <body><p>URL: <a href=\"%s\">%s</a></p><p>%s</p></body>
+    </html>"""
+
+    url="";
+    body="Output of the cis Element analysis";
+
+    
+
+    
+    whole = wrapper % (now, url, url, body)
+    f.write(whole)
+    f.close()
+
+    #filename = 'file:///Users/username/Desktop/programming-historian/' + filename
+
+    open_new_tab(filename)
+
+
+    
 canvas_width = 600
 canvas_height = 600
 
@@ -223,6 +267,12 @@ master.display41 = Text(newwin4, height=5, width=50, bg="lightyellow")
 master.display42 = Text(newwin4, height=10, width=50, bg="lightyellow")
 button4 = Button(newwin4, text="StringDB",command=stringdb_ws)    
 newwin4.destroy()
+
+newwin5 = Toplevel(master, height=10, width=25)
+master.display51 = Text(newwin5, height=5, width=50, bg="lightyellow")
+#master.display52 = Text(newwin5, height=10, width=50, bg="lightyellow")
+button5 = Button(newwin5, text="Cis element analyis (beta)",command=cis_element_analysis)    
+newwin5.destroy()
 
 MAP={}
 SYN={}
@@ -303,6 +353,21 @@ def OptionMenu_SelectionEvent2():
                 qq[MAP[vals[0]][0]][MAP[vals[0]][1]]=1
     do_calc(gg, qq)
 
+def cisAnalysis():
+
+    print("INFO\tstringdb")
+
+    newwin5 = Toplevel(master, height=10, width=25)
+    newwin5.title("Cis Analysis of Promoters")
+    master.display51 = Text(newwin5, height=5, width=50, bg="lightyellow")
+    #master.display52 = Text(newwin5, height=10, width=50, bg="lightyellow")
+    button = Button(newwin5, text="Analysis",command=cis_element_analysis)
+
+    master.display51.pack() 
+    #master.display52.pack() 
+    button.pack()
+
+    
 def stringdb():
 
     print("INFO\tstringdb")
@@ -472,6 +537,11 @@ filemenu4.add_command(label="Elements per chromosome", command=elements_per_chro
 filemenu4.add_command(label="Elements per bin", command=elements_per_bin)
 filemenu4.add_separator()
 menubar.add_cascade(label="Export", menu=filemenu4)
+
+filemenu5 = Menu(master, tearoff=0)
+filemenu5.add_command(label="Elements per bin", command=cisAnalysis)
+filemenu5.add_separator()
+menubar.add_cascade(label="Cis elements analysis", menu=filemenu5)
 
 master.config(menu=menubar)
 
