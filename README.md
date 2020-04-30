@@ -18,7 +18,7 @@ to largest chromosomes defines highest intensity.
 Visualizing all genes from an input GTF file and Ensembl Webservice calls to retrieve sequence for a
 gene as well as gene tree for a particular human gene.
 
-![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/Gexplora_Barley_V1c.png)
+![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/Gexplora_Barley_V1d.png)
 
 ![Gexplora](https://github.com/nthomasCUBE/Gexplora/blob/master/pix/fig1A.png)
 
