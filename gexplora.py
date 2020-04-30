@@ -18,8 +18,12 @@
 #   2020/04/15: adding legend, improved relative frequency visualization
 #   2020/04/16: introducing random id when no ID exists in an entry
 #   2020/04/26: beginn cis-element analysis panel
+#   2020/04/27: begin extracting cis-elements for plants from place
 
+from Bio.Alphabet import IUPAC
 from Bio import SeqIO
+from Bio import motifs
+from Bio.Seq import Seq
 import datetime
 from tkinter import *
 from tkinter.filedialog import askopenfilename
@@ -28,6 +32,7 @@ import requests, sys
 import json
 import xlsxwriter
 from webbrowser import open_new_tab
+import urllib
 
 #
 #   Export - Density of elements per Bin
@@ -217,25 +222,44 @@ def cis_element_analysis():
     <table border=1>
     <thead>
     <tr>
-    <th>Sequence</th>
-    <th>Sequence-Length</th>
-    <th>Promoter-Results</th>
+    <th>Sequence-Id</th>
+    <th>Sequence-Match-Position</th>
+    <th>PLACE Cis element</th>
     </tr>
     </thead>
     """
     for record in SeqIO.parse('cur_seq.fasta', "fasta"):
         print("%s %i" % (record.id, len(record)))
-        body=body+"<tr><td>%s</td><td>%i</td><td>---</td></tr>" % (record.id,len(record))
-    body=body+"<table>"
-    print(body)
+
     wrapper = """<html>
     <head>
     </head>
     <body>%s</body>
     </html>"""
 
+    url="https://www.dna.affrc.go.jp/PLACE/place_dat.shtml";
+    file = urllib. request. urlopen(url)
+    seqs={}
+
+    for line in file:
+        line=str(line).strip()
+        if(len(line.split())>2 and line.find("unknown")!=-1):
+            vals=line.split()
+            if(len(vals)>3):
+                seqs[vals[1]]=vals[2]
+
+                for record in SeqIO.parse('cur_seq.fasta', "fasta"):
+                    try:
+                        instances=[]
+                        instances.append(Seq(vals[2],IUPAC.ambiguous_dna))
+                        m=motifs.create(instances,alphabet=IUPAC.ambiguous_dna)
+                        for pos,seq in m.instances.search(Seq(str(record.seq),alphabet=IUPAC.ambiguous_dna)):
+                            body=body+"<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (record.id,pos,seq);
+                    except Exception:
+                        pass
+    body=body+"<table>"
+                    
     url="";
-    
     whole = wrapper % (body)
     f.write(whole)
     f.close()
@@ -550,7 +574,7 @@ menubar.add_cascade(label="Export", menu=filemenu4)
 filemenu5 = Menu(master, tearoff=0)
 filemenu5.add_command(label="Cis-element (input: promoter fasta sequences into textbox)", command=cisAnalysis)
 filemenu5.add_separator()
-menubar.add_cascade(label="Cis-elements (under development)", menu=filemenu5)
+menubar.add_cascade(label="Cis-elements", menu=filemenu5)
 
 master.config(menu=menubar)
 
