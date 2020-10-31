@@ -1,11 +1,5 @@
 # Gexplora
 
-## How to start
-
-* Download **Gexplora_V1c.rar**, unzip it.
-* Navigate to **Gexplora/Gexplora**
-* Execute it with double-click: **Gexplora.exe**
-
 ## Description
 
 plotting the density of genetic elements along a chromosome using GTF files (ideally from Ensembl) as input
