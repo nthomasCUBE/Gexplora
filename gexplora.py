@@ -20,6 +20,7 @@
 #   2020/04/26: beginn cis-element analysis panel
 #   2020/04/27: begin extracting cis-elements for plants from place
 #   2020/10/31: visualization type, reordering menu items
+#   2020/10/31: export as image
 
 from Bio.Alphabet import IUPAC
 from Bio import SeqIO
@@ -31,9 +32,13 @@ from tkinter.filedialog import askopenfilename
 import numpy as np
 import requests, sys
 import json
+import io
 import xlsxwriter
 from webbrowser import open_new_tab
 import urllib
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
 #
 #   Export - Density of elements per Bin
@@ -486,6 +491,26 @@ w = Canvas(master,
            width=canvas_width, 
            height=canvas_height, bg='lightyellow')
 
+width = 1000
+height = 1000
+center = height//2
+white = (255, 255, 255)
+green = (0,128,0)
+master.image1 = Image.new("RGB", (width, height), white)
+master.w2 = ImageDraw.Draw(master.image1)
+w.create_line([0, center, width, center], fill='green')
+master.w2.line([0, center, width, center], green)
+
+#master.w2.text((100,100),"medmekl")#,font=font)
+
+def export_canvas():
+    print("export_canvas")
+    filename = "my_drawing.jpg"
+    master.image1.save(filename)
+
+export_canvas()
+
+
 master.tkvar = StringVar(master)
 choices = {'---'}
 master.tkvar.set('---')
@@ -573,6 +598,7 @@ menubar.add_cascade(label="StringDB", menu=filemenu4)
 filemenu4 = Menu(master, tearoff=0)
 filemenu4.add_command(label="Elements per chromosome", command=elements_per_chromosome)
 filemenu4.add_command(label="Elements per bin", command=elements_per_bin)
+filemenu4.add_command(label="Export to PNG", command=export_canvas)
 filemenu4.add_separator()
 menubar.add_cascade(label="Export", menu=filemenu4)
 
@@ -613,6 +639,7 @@ def do_calc(gg, qq=None):
     y_i=0
     for y in list(master.ALL_CHRS)[0:5]:
         w.create_rectangle(100,100*y_i+10,500,100*y_i+90,fill="white")
+        master.w2.line([100,100*y_i+10,500,100*y_i+90],fill="white")
         y_i=y_i+1
 
     w.delete("all")
@@ -644,7 +671,9 @@ def do_calc(gg, qq=None):
     y_i=0
     for y in gg_k_sort[master.CHR_START:master.CHR_END]:
         w.create_rectangle(100,100*y_i+10,300+int(master.tkvar6.get()),100*y_i+90,fill="white")
+        master.w2.rectangle([100,100*y_i+10,300+int(master.tkvar6.get()),100*y_i+90],fill="white")
         i=w.create_text(200,100*y_i+85,text="0")
+        master.w2.text((200,100*y_i+85),"0",(0,0,0))
 
         master.DENS[y]=[]
 
@@ -660,7 +689,9 @@ def do_calc(gg, qq=None):
             if(len(all_e)>0 and s1<max(all_e)):
                 if(x==0):
                     w.create_text(50,100*y_i+40,text=y)
-                    w.create_text(300+(int(master.tkvar6.get())-100),100*y_i+85,text=str(round(max(master.ALL_CHRS[y].keys())/1000000,2))+" Mbp")
+                    master.w2.text((50,100*y_i+40),str(y),(0,0,0))
+                    w.create_text( (300+(int(master.tkvar6.get())-100),100*y_i+85),text=str(round(max(master.ALL_CHRS[y].keys())/1000000,2))+" Mbp")
+                    master.w2.text((300+(int(master.tkvar6.get())-100),100*y_i+85),str(round(max(master.ALL_CHRS[y].keys())/1000000,2))+" Mbp",(0,0,0))
 
                 xarr=list(all_e)
                 xarr=np.array(xarr)
@@ -694,6 +725,7 @@ def do_calc(gg, qq=None):
                     cur_col="#e0e0d1"
                 if(master.var2.get()):
                     w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
+                    master.w2.line([200+x,100*y_i+20,200+x,100*y_i+80],fill=cur_col)
                     cur_col="black"
 
                 if(x==0):
@@ -702,12 +734,23 @@ def do_calc(gg, qq=None):
                     w.create_rectangle(520,80,540,90,fill="green")
                     w.create_rectangle(520,70,540,80,fill="orange")
                     w.create_rectangle(520,60,540,70,fill="red")
-
                     w.create_text(570,65,text=">80%")
                     w.create_text(570,75,text="[30%,80%]")
                     w.create_text(570,85,text="[20%,30%]")
                     w.create_text(570,95,text="[10%,20%]")
                     w.create_text(570,105,text="]0,10%]")
+
+
+                    master.w2.rectangle([520,100,540,110],fill="blue")
+                    master.w2.rectangle([520,90,540,100],fill="yellow")
+                    master.w2.rectangle([520,80,540,90],fill="green")
+                    master.w2.rectangle([520,70,540,80],fill="orange")
+                    master.w2.rectangle([520,60,540,70],fill="red")
+                    master.w2.text((570,65),">80%",(0,0,0))
+                    master.w2.text((570,75),"[30%,80%]",(0,0,0))
+                    master.w2.text((570,85),"[20%,30%]",(0,0,0))
+                    master.w2.text((570,95),"[10%,20%]",(0,0,0))
+                    master.w2.text((570,105),"]0,10%]",(0,0,0))
 
                 # not started yet - circular diagrams
                 #w.create_arc(100,100,200,200,fill="red")
@@ -718,11 +761,17 @@ def do_calc(gg, qq=None):
                 if(x>0):
                     if(master.var1.get()):
                         w.create_line(200+x-1,100*y_i+100-20-0.6*master.DENS[y][x-1]*0.6,200+x,100*y_i+100-20-0.6*master.DENS[y][x]*0.6,fill=cur_col)                                
+                        master.w2.line([200+x-1,100*y_i+100-20-0.6*master.DENS[y][x-1]*0.6,200+x,100*y_i+100-20-0.6*master.DENS[y][x]*0.6],fill=cur_col)                                
             if(x==(int(master.tkvar6.get())-1)):
                 if(len(master.DENS[y])>0):
                     w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+25,text=str("max:"+str(round(max(master.DENS[y]),0))))
                     w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+37,text=str("avg:"+str(round(sum(master.DENS[y])/len(master.DENS[y]),0))))
                     w.create_text(350+(int(master.tkvar6.get())-100),100*y_i+49,text=str("min:"+str(round(min(master.DENS[y]),0))))
+
+                    master.w2.text((350+(int(master.tkvar6.get())-100),100*y_i+25),str("max:"+str(round(max(master.DENS[y]),0))),(0,0,0))
+                    master.w2.text((350+(int(master.tkvar6.get())-100),100*y_i+37),str("avg:"+str(round(sum(master.DENS[y])/len(master.DENS[y]),0))),(0,0,0))
+                    master.w2.text((350+(int(master.tkvar6.get())-100),100*y_i+49),str("min:"+str(round(min(master.DENS[y]),0))),(0,0,0))
+
         y_i=y_i+1    
     print("INFO\tdo_calc\tended")
 
