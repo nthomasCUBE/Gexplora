@@ -27,6 +27,7 @@ from Bio import SeqIO
 from Bio import motifs
 from Bio.Seq import Seq
 import datetime
+from datetime import date
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 import numpy as np
@@ -47,8 +48,10 @@ def elements_per_bin():
     print("INFO\telements per bin")
     try:
         dens={}
+        today = date.today()
+        d1 = today.strftime("%Y%m%d")
         fh=open(master.gtf_file, encoding="latin-1")
-        workbook = xlsxwriter.Workbook('elements_per_bin.xlsx')
+        workbook = xlsxwriter.Workbook('%s_elements_per_bin.xlsx' % d1)
         worksheet = workbook.add_worksheet()
         worksheet.write("A1","Chromosome")
         worksheet.write("B1","Bin")
@@ -74,8 +77,10 @@ def elements_per_chromosome():
     print("INFO\telements per chromosome")
     try:
         dens={}
+        today = date.today()
+        d1 = today.strftime("%Y%m%d")
         fh=open(master.gtf_file, encoding="latin-1")
-        workbook = xlsxwriter.Workbook('elements_per_chromosome.xlsx')
+        workbook = xlsxwriter.Workbook('%s_elements_per_chromosome.xlsx' % d1)
         worksheet = workbook.add_worksheet()
         worksheet.write("A1","Chromosome")
         worksheet.write("B1","Amount of elements")
@@ -505,7 +510,9 @@ master.w2.line([0, center, width, center], green)
 
 def export_canvas():
     print("export_canvas")
-    filename = "my_drawing.jpg"
+    today = date.today()
+    d1 = today.strftime("%Y%m%d")
+    filename = "%s_canvas.jpg" % d1
     master.image1.save(filename)
 
 export_canvas()
