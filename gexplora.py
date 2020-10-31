@@ -19,6 +19,7 @@
 #   2020/04/16: introducing random id when no ID exists in an entry
 #   2020/04/26: beginn cis-element analysis panel
 #   2020/04/27: begin extracting cis-elements for plants from place
+#   2020/10/31: visualization type, reordering menu items
 
 from Bio.Alphabet import IUPAC
 from Bio import SeqIO
@@ -87,7 +88,6 @@ def elements_per_chromosome():
             worksheet.write("B"+str(i1),len(dens[dens_].keys()))
             i1=i1+1
         workbook.close()
-        print("JA-3")
     except Exception:
         print("INFO\tgtf file not provided")
 #
@@ -101,7 +101,6 @@ def stringdb_ws():
         server="http://string-db.org/api/tsv/"
         ext = "abstractsList?identifiers=%s" % my_id
         try:
-            print(server+ext)
             r = requests.get(server+ext, headers={ "Content-Type" : "text/tab-separated-values"})
             if not r.ok:
               r.raise_for_status()
@@ -111,7 +110,6 @@ def stringdb_ws():
                 if(len(r.text.split())==1):
                     server="https://rest.ensembl.org/"
                     ext="xrefs/id/%s?content-type=application/json" % my_id
-                    print(server+ext)
                     r = requests.get(server+ext, headers={ "Content-Type" : "application/json"})
                     obj=json.loads(r.text)
                     my_id=obj[0]["primary_id"]
@@ -130,7 +128,6 @@ def oma_ws():
     from omadb import Client
     c = Client()
     #prot_id = 'P53_RAT'
-    
     my_ids=master.display31.get("1.0","end-1c").split()
     if(len(my_ids)==0):
         master.display32.insert(END,"No orthologous proteins found")
@@ -204,7 +201,6 @@ def gene_info_ws():
 
 def cis_element_analysis():
     print("cis_element_analysis")
-
 
     now = datetime.datetime.today().strftime("%Y%m%d-%H%M%S")
     filename = "cis_element_analysis"+ '.html'
@@ -513,16 +509,25 @@ popupMenu51 = Button(master,text="<<", command=minus_chr)
 popupMenu52 = Button(master,text=">>", command=add_chr)
 
 master.tkvar6 = StringVar(master)
-choices = { 100,150,200,250,300}
+choices = { 100,150,200,250,300, 500, 1000}
 master.tkvar6.set(200)
 l6=Label(master,text="Bins total:",width=30)
 popupMenu6 = OptionMenu(master, master.tkvar6, *choices, command=do_recalc)
 
-var1 = IntVar()
-var2 = IntVar()
-var1.set(1)
-var2.set(1)
+master.var1 = IntVar()
+master.var2 = IntVar()
+master.var1.set(1)
+master.var2.set(1)
 
+def visTypePressed():
+    print("visTypePressed")
+    master.tkvar71.configure(state=DISABLED)
+    master.tkvar72.configure(state=DISABLED)
+    gg=calc_distribution(master.tkvar.get())
+    do_calc(gg)
+    master.tkvar71.configure(state=NORMAL)
+    master.tkvar72.configure(state=NORMAL)
+    
 def get_gtf_file():
     master.gtf_file = askopenfilename()
 
@@ -588,8 +593,10 @@ popupMenu4.grid(row=3,column=1,padx=15)
 popupMenu6.grid(row=4,column=1,padx=15)
 popupMenu51.grid(row=5,column=1,padx=15)
 popupMenu52.grid(row=5,column=2,padx=15)
-tkvar71=Checkbutton(master, text="Linechart", variable=var1).grid(row=6, column=1,sticky=W)
-tkvar72=Checkbutton(master, text="Heatmap", variable=var2).grid(row=7, column=1, sticky=W)
+master.tkvar71=Checkbutton(master, text="Linechart", variable=master.var1, command=visTypePressed);
+master.tkvar71.grid(row=6, column=1,sticky=W)
+master.tkvar72=Checkbutton(master, text="Heatmap", variable=master.var2, command=visTypePressed);
+master.tkvar72.grid(row=7, column=1, sticky=W)
 w.grid(row=8,column=0,columnspan=2)
 
 def do_calc(gg, qq=None):
@@ -685,7 +692,7 @@ def do_calc(gg, qq=None):
                     cur_col="blue"
                 elif(cnt2==0):
                     cur_col="#e0e0d1"
-                if(var2.get()):
+                if(master.var2.get()):
                     w.create_line(200+x,100*y_i+20,200+x,100*y_i+80,fill=cur_col)
                     cur_col="black"
 
@@ -702,16 +709,14 @@ def do_calc(gg, qq=None):
                     w.create_text(570,95,text="[10%,20%]")
                     w.create_text(570,105,text="]0,10%]")
 
-
                 # not started yet - circular diagrams
                 #w.create_arc(100,100,200,200,fill="red")
                 #w.create_arc(200,200,100,300,fill="blue")
                 #w.create_arc(100,300,0,200,fill="orange")
                 #w.create_arc(0,200,100,100,fill="green")
 
-
                 if(x>0):
-                    if(var1.get()):
+                    if(master.var1.get()):
                         w.create_line(200+x-1,100*y_i+100-20-0.6*master.DENS[y][x-1]*0.6,200+x,100*y_i+100-20-0.6*master.DENS[y][x]*0.6,fill=cur_col)                                
             if(x==(int(master.tkvar6.get())-1)):
                 if(len(master.DENS[y])>0):
