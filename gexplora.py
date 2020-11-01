@@ -85,6 +85,7 @@ def elements_per_chromosome():
         worksheet.write("A1","Chromosome")
         worksheet.write("B1","Amount of elements")
         i1=2
+        master.gois=[]
         for line in fh.readlines():
             line=line.strip()
             vals=line.split("\t")
@@ -93,6 +94,10 @@ def elements_per_chromosome():
                     if(dens.get(vals[0])==None):
                         dens[vals[0]]={}
                     dens[vals[0]][vals[3]]=1
+                if(vals[2]=="gene"):
+                    g_id=vals[8].split("gene_id ")[1].split().replace("\"","")
+                    if(not(g_id in master.gois)):
+                        master.gois.append(g_id)
         for dens_ in dens:
             worksheet.write("A"+str(i1),dens_)
             worksheet.write("B"+str(i1),len(dens[dens_].keys()))
@@ -192,12 +197,15 @@ def gene_info_ws():
     
     print("INFO\tgene_info_ws")
     server = "https://rest.ensembl.org"
-    my_ids=master.display.get("1.0","end-1c").split()
-    my_ids_u={}
-    for my_id in my_ids:
-        my_ids_u[my_id]=1
+    #my_ids=master.display.get()#("1.0","end-1c").split()
+    #my_ids_u={}
+    #for my_id in my_ids:
+    #    my_ids_u[my_id]=1
+    my_ids_u=[master.var_1.get()]
+    #print(master.var_1.get())
     for my_id in my_ids_u:
-        ext = "/sequence/id/%s?type=cds" % my_id
+        ext = "/sequence/id/%s?content-type=text/plain" % my_id
+        print(ext)
         try: 
             r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
             if not r.ok:
@@ -280,11 +288,15 @@ canvas_width = 600
 canvas_height = 600
 
 master = Tk()
+master.gois=["---"]
 master.title("Gexplora - visualizing density of genetic elements in a chromosome");
 master.configure(background='lightgreen')
 
 newwin = Toplevel(master, height=10, width=25)
-master.display = Text(newwin, height=5, width=50, bg="lightyellow")
+#master.display = Text(newwin, height=5, width=50, bg="lightyellow")
+working_list = master.gois #["Option 1", "Option 2", "Option 3", "Option 4"]
+master.var_1 = StringVar()
+master.display=OptionMenu(newwin,master.var_1, *working_list)
 master.display2 = Text(newwin, height=10, width=50, bg="lightyellow")
 button = Button(newwin, text="Get Sequence",command=gene_info_ws)
 newwin.destroy()
@@ -427,7 +439,10 @@ def gene_info():
 
     newwin = Toplevel(master, height=10, width=25)
     newwin.title("Get Sequence from sequence identifier")
-    master.display = Text(newwin, height=5, width=50, bg="lightyellow")
+    #master.display = Text(newwin, height=5, width=50, bg="lightyellow")
+    working_list = master.gois #["Option 1", "Option 2", "Option 3", "Option 4"]
+    master.var_1 = StringVar()
+    master.display=OptionMenu(newwin,master.var_1, *working_list)
     master.display2 = Text(newwin, height=10, width=50, bg="lightyellow")
     button = Button(newwin, text="Get Sequence",command=gene_info_ws)
 
@@ -563,6 +578,8 @@ def visTypePressed():
 def get_gtf_file():
     master.gtf_file = askopenfilename()
 
+    master.gois=[]
+    
     choices={}
     fh=open(master.gtf_file, encoding="latin-1")
     for line in fh.readlines():
@@ -570,6 +587,12 @@ def get_gtf_file():
         vals=line.split("\t")
         if(len(vals)==9):
             choices[vals[2]]=1
+
+            if(vals[2]=="transcript"):
+                c_id=vals[8].split("transcript_id ")[1].split()[0]
+                if(not(c_id in master.gois)):
+                    master.gois.append(c_id.replace("\"","").replace(";",""))
+            
     choices=list(choices)
     choices.insert(0,"---")
     master.tkvar = StringVar(master)
