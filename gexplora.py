@@ -30,6 +30,7 @@ import datetime
 from datetime import date
 from tkinter import *
 from tkinter.filedialog import askopenfilename
+import tkinter.ttk as ttk
 import numpy as np
 import requests, sys
 import json
@@ -85,7 +86,6 @@ def elements_per_chromosome():
         worksheet.write("A1","Chromosome")
         worksheet.write("B1","Amount of elements")
         i1=2
-        master.gois=[]
         for line in fh.readlines():
             line=line.strip()
             vals=line.split("\t")
@@ -94,10 +94,6 @@ def elements_per_chromosome():
                     if(dens.get(vals[0])==None):
                         dens[vals[0]]={}
                     dens[vals[0]][vals[3]]=1
-                if(vals[2]=="gene"):
-                    g_id=vals[8].split("gene_id ")[1].split().replace("\"","")
-                    if(not(g_id in master.gois)):
-                        master.gois.append(g_id)
         for dens_ in dens:
             worksheet.write("A"+str(i1),dens_)
             worksheet.write("B"+str(i1),len(dens[dens_].keys()))
@@ -161,13 +157,16 @@ def gene_family_ws():
     
     print("INFO\tgene_info_ws")
     server = "https://rest.ensembl.org"
-    my_ids=master.display21.get("1.0","end-1c").split()
-    my_ids_u={}
-    for my_id in my_ids:
-        my_ids_u[my_id]=1
+    #my_ids=master.display21.get("1.0","end-1c").split()
+    #my_ids_u={}
+    #for my_id in my_ids:
+    #    my_ids_u[my_id]=1
+    my_ids_u=[master.display21.get()]
+    print(master.display21.get())
     for my_id in my_ids_u:
         ext = "/family/member/id/%s?content-type=application/json" % my_id
-        try: 
+        try:
+            print(server+ext)
             r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
             if not r.ok:
               r.raise_for_status()
@@ -201,7 +200,7 @@ def gene_info_ws():
     #my_ids_u={}
     #for my_id in my_ids:
     #    my_ids_u[my_id]=1
-    my_ids_u=[master.var_1.get()]
+    my_ids_u=[master.display.get()]
     #print(master.var_1.get())
     for my_id in my_ids_u:
         ext = "/sequence/id/%s?content-type=text/plain" % my_id
@@ -289,6 +288,7 @@ canvas_height = 600
 
 master = Tk()
 master.gois=["---"]
+master.gois2=["---"]
 master.title("Gexplora - visualizing density of genetic elements in a chromosome");
 master.configure(background='lightgreen')
 
@@ -296,14 +296,17 @@ newwin = Toplevel(master, height=10, width=25)
 #master.display = Text(newwin, height=5, width=50, bg="lightyellow")
 working_list = master.gois #["Option 1", "Option 2", "Option 3", "Option 4"]
 master.var_1 = StringVar()
-master.display=OptionMenu(newwin,master.var_1, *working_list)
-master.display2 = Text(newwin, height=10, width=50, bg="lightyellow")
+master.display=ttk.Combobox(newwin)#,master.var_1, *working_list)
+master.display2 = Text(newwin, height=5, width=50, bg="lightyellow")
 button = Button(newwin, text="Get Sequence",command=gene_info_ws)
 newwin.destroy()
 
 newwin2 = Toplevel(master, height=10, width=25)
-master.display21 = Text(newwin2, height=5, width=50, bg="lightyellow")
-master.display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
+#working_list=master.gois
+master.var_1_2=StringVar()
+master.display21=ttk.Combobox(newwin2)#,master.var_1_2, *working_list)
+#master.display21 = Text(newwin2, height=5, width=50, bg="lightyellow")
+master.display22 = Text(newwin2, height=5, width=50, bg="lightyellow")
 button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
 newwin2.destroy()
 
@@ -442,7 +445,8 @@ def gene_info():
     #master.display = Text(newwin, height=5, width=50, bg="lightyellow")
     working_list = master.gois #["Option 1", "Option 2", "Option 3", "Option 4"]
     master.var_1 = StringVar()
-    master.display=OptionMenu(newwin,master.var_1, *working_list)
+    master.display=ttk.Combobox(newwin)#,master.var_1, *working_list)
+    master.display['values']=working_list
     master.display2 = Text(newwin, height=10, width=50, bg="lightyellow")
     button = Button(newwin, text="Get Sequence",command=gene_info_ws)
 
@@ -471,7 +475,11 @@ def gene_family():
 
     newwin2 = Toplevel(master, height=10, width=25)
     newwin2.title("Get Gene Family from Gene Identifier")
-    master.display21 = Text(newwin2, height=5, width=50, bg="lightyellow")
+    working_list=master.gois2
+    master.var_1_2 = StringVar()
+    master.display21=ttk.Combobox(newwin2)#,master.var_1_2, *working_list)
+    #master.display21 = Text(newwin2, height=5, width=50, bg="lightyellow")
+    master.display21['values']=working_list
     master.display22 = Text(newwin2, height=10, width=50, bg="lightyellow")
     button2 = Button(newwin2, text="Get Gene Family",command=gene_family_ws)    
 
@@ -579,6 +587,7 @@ def get_gtf_file():
     master.gtf_file = askopenfilename()
 
     master.gois=[]
+    master.gois2=[]
     
     choices={}
     fh=open(master.gtf_file, encoding="latin-1")
@@ -592,6 +601,10 @@ def get_gtf_file():
                 c_id=vals[8].split("transcript_id ")[1].split()[0]
                 if(not(c_id in master.gois)):
                     master.gois.append(c_id.replace("\"","").replace(";",""))
+            elif(vals[2]=="gene"):
+                c_id=vals[8].split("gene_id ")[1].split()[0]
+                if(not(c_id in master.gois2)):
+                    master.gois2.append(c_id.replace("\"","").replace(";",""))
             
     choices=list(choices)
     choices.insert(0,"---")
