@@ -21,6 +21,7 @@
 #   2020/04/27: begin extracting cis-elements for plants from place
 #   2020/10/31: visualization type, reordering menu items
 #   2020/10/31: export as image
+#   2020/11/14: get sequence and gene trees from gene ids
 
 from Bio.Alphabet import IUPAC
 from Bio import SeqIO
@@ -601,10 +602,23 @@ def get_gtf_file():
                 c_id=vals[8].split("transcript_id ")[1].split()[0]
                 if(not(c_id in master.gois)):
                     master.gois.append(c_id.replace("\"","").replace(";",""))
+            elif(vals[2]=="mRNA"):
+                c_id=vals[8].split("transcript:")[1].split(";")[0]
+                if(not(c_id in master.gois)):
+                    master.gois.append(c_id.replace("\"","").replace(";",""))
             elif(vals[2]=="gene"):
-                c_id=vals[8].split("gene_id ")[1].split()[0]
-                if(not(c_id in master.gois2)):
-                    master.gois2.append(c_id.replace("\"","").replace(";",""))
+                try:
+                    c_id=vals[8].split("gene_id ")[1].split()[0]
+                    if(not(c_id in master.gois2)):
+                        master.gois2.append(c_id.replace("\"","").replace(";",""))
+                except Exception:
+                    try:
+                        c_id=vals[8].split("gene:")[1].split(";")[0]
+                        if(not(c_id in master.gois2)):
+                            master.gois2.append(c_id.replace("\"","").replace(";",""))
+                    except:
+                        pass
+                    
             
     choices=list(choices)
     choices.insert(0,"---")
