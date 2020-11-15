@@ -190,8 +190,8 @@ def gene_family_ws():
                             desc=mem_["description"]
                         master.display22.insert(END,psi+"\t"+gen+"\t"+desc)
                         master.display22.insert(END,"\n")
-        except:
-            master.display22.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
+        except Error as err:
+            master.display22.insert(END,err)
     
 def gene_info_ws():
     
@@ -214,8 +214,8 @@ def gene_info_ws():
               sys.exit()
             else:
                 master.display2.insert(END,r.text)
-        except:
-            master.display2.insert(END,"UNABLE TO ACCESS ENSEMBL WEBSERVICE\nInternet connection active?")
+        except Error as err:
+            master.display2.insert(END,err)
 
 def cis_element_analysis():
     print("cis_element_analysis")
